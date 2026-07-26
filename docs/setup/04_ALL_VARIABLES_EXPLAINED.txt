@@ -1,0 +1,492 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║               ALL ENVIRONMENT VARIABLES EXPLAINED                          ║
+║                                                                            ║
+║                  Everything You Need to Deploy                             ║
+║                                                                            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+
+TOTAL VARIABLES: 11
+Required: 4 (must have to run bot)
+Recommended: 3 (highly recommended)
+Optional: 4 (nice to have)
+
+
+═════════════════════════════════════════════════════════════════════════════
+
+                        ⭐ REQUIRED (4)
+
+These 4 variables MUST be set or bot won't work!
+
+═════════════════════════════════════════════════════════════════════════════
+
+
+1️⃣  SINOBANED2_BOT_TOKEN
+────────────────────────────────────────────────────────────────────────────
+
+What it is: Your Telegram bot's authentication token
+
+Get it:
+  1. Open Telegram
+  2. Search for: @BotFather
+  3. Send: /newbot
+  4. Follow prompts
+  5. Copy the token
+
+Example format:
+  1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+
+Where to use:
+  Bot uses this to log in to Telegram
+  Telegram uses this to verify requests
+
+In .env:
+  SINOBANED2_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+
+Status: ✅ REQUIRED
+Cost: FREE
+Time: 2 minutes
+
+
+2️⃣  ADMIN_ID
+────────────────────────────────────────────────────────────────────────────
+
+What it is: Your personal Telegram user ID (for admin commands)
+
+Get it:
+  1. Open Telegram
+  2. Search for: @userinfobot
+  3. Send any message
+  4. Copy the number under "Id"
+
+Example format:
+  123456789
+
+Where to use:
+  /admin command checks if your ID matches
+  Only you can see admin dashboard
+
+In .env:
+  ADMIN_ID=123456789
+
+Status: ✅ REQUIRED
+Cost: FREE
+Time: 1 minute
+
+
+3️⃣  DATABASE_URL
+────────────────────────────────────────────────────────────────────────────
+
+What it is: Connection string to your PostgreSQL database
+
+Where to use:
+  Bot stores all data here
+  User profiles, submissions, payments, etc.
+
+Options:
+
+  OPTION A: Supabase (Recommended - FREE)
+  ─────────────────────────────────────
+  1. Go to: https://supabase.com
+  2. Sign up with GitHub
+  3. Create new project
+  4. Wait 1-2 minutes
+  5. Go to: Settings → Database
+  6. Copy "Connection string"
+  
+  Example:
+    postgresql://postgres:PASSWORD@db.supabase.co:5432/postgres
+
+  In .env:
+    DATABASE_URL=postgresql://postgres:PASSWORD@db.supabase.co:5432/postgres
+
+  OPTION B: Railway (Alternative)
+  ────────────────────────────────
+  1. Go to: https://railway.app
+  2. Create account
+  3. New Project → PostgreSQL
+  4. Copy DATABASE_URL
+
+Status: ✅ REQUIRED
+Cost: FREE
+Time: 5 minutes
+
+
+4️⃣  GROQ_API_KEY
+────────────────────────────────────────────────────────────────────────────
+
+What it is: API key for Groq AI (free LLM for anime recommendations)
+
+Get it:
+  1. Go to: https://console.groq.com
+  2. Sign up
+  3. Go to: API Keys
+  4. Create new key
+  5. Copy it
+
+Example format:
+  gsk_abcdef123456789ghijklmnop
+
+Where to use:
+  AI anime recommendations feature
+  AI anime summaries feature
+  Monthly subscription revenue: 10 GHS per user
+
+In .env:
+  GROQ_API_KEY=gsk_abcdef123456789ghijklmnop
+
+Why free?:
+  Groq has generous free tier
+  Great for testing and small scale
+  Can upgrade later if needed
+
+Status: ✅ REQUIRED
+Cost: FREE (generous limits)
+Time: 3 minutes
+
+
+═════════════════════════════════════════════════════════════════════════════
+
+                    ⚡ HIGHLY RECOMMENDED (3)
+
+These make your bot actually earn money!
+
+═════════════════════════════════════════════════════════════════════════════
+
+
+5️⃣  PAYSTACK_SECRET_KEY
+6️⃣  PAYSTACK_PUBLIC_KEY
+────────────────────────────────────────────────────────────────────────────
+
+What it is: Payment processor for 50 GHS bot clones
+
+Get them:
+  1. Go to: https://paystack.com
+  2. Create business account
+  3. Verify email
+  4. Go to: Settings → API Keys & Webhooks
+  5. Copy both keys (Secret and Public)
+
+Example format:
+  Secret: [YOUR_PAYSTACK_SECRET_KEY]
+  Public: [YOUR_PAYSTACK_PUBLIC_KEY]
+
+Where to use:
+  When users clone your bot for 50 GHS
+  Paystack handles payments securely
+  Money goes to your Paystack account
+
+In .env:
+  PAYSTACK_SECRET_KEY=[YOUR_PAYSTACK_SECRET_KEY]
+  PAYSTACK_PUBLIC_KEY=[YOUR_PAYSTACK_PUBLIC_KEY]
+
+Revenue:
+  50 GHS per bot clone sold
+  Recurring (users keep cloning)
+  Example: 10 clones = 500 GHS
+
+Status: ⚡ HIGHLY RECOMMENDED
+Cost: FREE (2-3% transaction fee)
+Time: 5 minutes total (both keys)
+
+
+═════════════════════════════════════════════════════════════════════════════
+
+                    💳 PAYMENT PROCESSING (3)
+
+These handle clone bot commission tracking
+
+═════════════════════════════════════════════════════════════════════════════
+
+
+7️⃣  STRIPE_SECRET_KEY
+8️⃣  STRIPE_PUBLIC_KEY
+────────────────────────────────────────────────────────────────────────────
+
+What it is: Payment processor for tracking clone bot commissions
+
+Get them:
+  1. Go to: https://stripe.com
+  2. Create account
+  3. Go to: Developers → API Keys
+  4. Copy Secret and Publishable keys
+
+Example format:
+  Secret: sk_test_abcdef1234567890ghijklmnopqrst
+  Public: pk_test_abcdef1234567890ghijklmnopqrst
+
+Where to use:
+  Cloned bot owners connect their own Stripe
+  They process payments for their customers
+  You automatically get 10% commission
+  Real-time settlement tracking
+
+In .env:
+  STRIPE_SECRET_KEY=sk_test_abcdef1234567890ghijklmnopqrst
+  STRIPE_PUBLIC_KEY=pk_test_abcdef1234567890ghijklmnopqrst
+
+Revenue:
+  10% of every clone bot's sales
+  Passive income (you do nothing)
+  Example: 5 clones × 1000 GHS revenue each = 500 GHS/month commission!
+
+Status: 💳 PAYMENT PROCESSING
+Cost: FREE (2.9% + 30¢ per transaction on their sales)
+Time: 5 minutes total (both keys)
+
+
+9️⃣  TELEGRAM_WEBHOOK_URL
+────────────────────────────────────────────────────────────────────────────
+
+What it is: Where Telegram sends updates to your bot on Vercel
+
+Get it:
+  After deploying to Vercel, you get a unique URL
+  Format: https://your-project.vercel.app
+  Webhook: https://your-project.vercel.app/api/bot
+
+Example:
+  https://my-anime-bot-xyz.vercel.app/api/bot
+
+Where to use:
+  Telegram sends messages here (webhook mode)
+  More efficient than polling
+  Instant bot response
+
+In .env:
+  TELEGRAM_WEBHOOK_URL=https://your-project.vercel.app/api/bot
+
+How to set in Telegram:
+  curl -X POST \
+    https://api.telegram.org/bot{YOUR_BOT_TOKEN}/setWebhook \
+    -d url="https://your-project.vercel.app/api/bot"
+
+Status: 🌐 REQUIRED FOR VERCEL
+Cost: FREE
+Time: Auto (Vercel generates it)
+
+
+═════════════════════════════════════════════════════════════════════════════
+
+                    🔧 CONFIGURATION (2)
+
+These are optional but good to set
+
+═════════════════════════════════════════════════════════════════════════════
+
+
+🔟 NODE_ENV
+────────────────────────────────────────────────────────────────────────────
+
+What it is: Environment type (production or development)
+
+Options:
+  production (for Vercel)
+  development (for local testing)
+
+In .env:
+  NODE_ENV=production
+
+Default: production (if not set)
+
+Status: Optional (defaults to production)
+Cost: FREE
+Time: <1 minute
+
+
+1️⃣1️⃣ LOG_LEVEL
+────────────────────────────────────────────────────────────────────────────
+
+What it is: How detailed logs should be
+
+Options:
+  DEBUG (very detailed, for troubleshooting)
+  INFO (standard, shows important events)
+  WARNING (only issues)
+  ERROR (only errors)
+
+In .env:
+  LOG_LEVEL=INFO
+
+Default: INFO (if not set)
+
+Recommendations:
+  • Development: DEBUG
+  • Production: INFO
+  • Troubleshooting: DEBUG
+
+Status: Optional (defaults to INFO)
+Cost: FREE
+Time: <1 minute
+
+
+═════════════════════════════════════════════════════════════════════════════
+
+                         QUICK REFERENCE
+
+═════════════════════════════════════════════════════════════════════════════
+
+Copy/paste template for .env:
+
+─────────────────────────────────────────────────────────────────────────────
+# Required (4)
+SINOBANED2_BOT_TOKEN=your_telegram_bot_token
+ADMIN_ID=your_admin_user_id
+DATABASE_URL=your_postgres_connection_string
+GROQ_API_KEY=your_groq_api_key
+
+# Recommended (3)
+PAYSTACK_SECRET_KEY=your_paystack_secret
+PAYSTACK_PUBLIC_KEY=your_paystack_public
+
+# Stripe (3)
+STRIPE_SECRET_KEY=your_stripe_secret
+STRIPE_PUBLIC_KEY=your_stripe_public
+TELEGRAM_WEBHOOK_URL=https://your-project.vercel.app/api/bot
+
+# Optional (2)
+NODE_ENV=production
+LOG_LEVEL=INFO
+─────────────────────────────────────────────────────────────────────────────
+
+
+═════════════════════════════════════════════════════════════════════════════
+
+                         SETUP ORDER (FASTEST)
+
+Follow this order - takes ~20 minutes:
+
+[ ] 1. Bot Token (2 min) → SINOBANED2_BOT_TOKEN
+[ ] 2. Admin ID (1 min) → ADMIN_ID
+[ ] 3. Database (5 min) → DATABASE_URL (Supabase)
+[ ] 4. Groq AI (3 min) → GROQ_API_KEY
+[ ] 5. Paystack (5 min) → PAYSTACK_SECRET_KEY, PAYSTACK_PUBLIC_KEY
+[ ] 6. Stripe (5 min) → STRIPE_SECRET_KEY, STRIPE_PUBLIC_KEY
+[ ] 7. Vercel Deploy (10 min) → Deploy code
+[ ] 8. Webhook (2 min) → TELEGRAM_WEBHOOK_URL + set in Telegram
+
+TOTAL: ~20-30 minutes
+
+
+═════════════════════════════════════════════════════════════════════════════
+
+                    WHERE EACH VARIABLE COMES FROM
+
+─────────────────────────────────────────────────────────────────────────────
+
+Telegram Sources:
+  SINOBANED2_BOT_TOKEN ← @BotFather (/newbot)
+  ADMIN_ID ← @userinfobot (your user ID)
+  TELEGRAM_WEBHOOK_URL ← Your Vercel project
+
+Database:
+  DATABASE_URL ← Supabase.com OR Railway.app
+
+AI:
+  GROQ_API_KEY ← console.groq.com
+
+Payments:
+  PAYSTACK_* ← paystack.com
+  STRIPE_* ← stripe.com
+
+Config:
+  NODE_ENV ← You set it (production)
+  LOG_LEVEL ← You set it (INFO)
+
+─────────────────────────────────────────────────────────────────────────────
+
+
+═════════════════════════════════════════════════════════════════════════════
+
+                         DEPLOYMENT TARGETS
+
+═════════════════════════════════════════════════════════════════════════════
+
+LOCAL TESTING:
+  • Create .env file in project root
+  • Add all variables
+  • Run: python main.py
+  • Bot runs on your computer
+
+VERCEL DEPLOYMENT (RECOMMENDED):
+  • Push code to GitHub
+  • Import in Vercel dashboard
+  • Add variables in Vercel Settings
+  • Bot runs on Vercel servers (FREE!)
+
+RAILWAY DEPLOYMENT:
+  • Push code to GitHub
+  • Import in Railway dashboard
+  • Add variables in Railway
+  • Bot runs on Railway servers
+
+
+═════════════════════════════════════════════════════════════════════════════
+
+                      DETAILED SETUP GUIDES
+
+═════════════════════════════════════════════════════════════════════════════
+
+For more details on each variable, see:
+
+📄 ENVIRONMENT_SETUP.md
+   ���─ Detailed step-by-step for each variable
+   ├─ Screenshots of where to find each key
+   ├─ Copy-paste examples
+   └─ Troubleshooting tips
+
+📄 VARIABLES_CHECKLIST.txt
+   ├─ Quick checklist format
+   ├─ Verification steps
+   └─ Common issues
+
+📄 DEPLOYMENT_QUICK_START.txt
+   ├─ 7-step deployment process
+   ├─ Testing instructions
+   └─ Troubleshooting guide
+
+
+═════════════════════════════════════════════════════════════════════════════
+
+                           SUMMARY TABLE
+
+═════════════════════════════════════════════════════════════════════════════
+
+# Variable                  Required Cost  Time Source
+──────────────────────────────────────────────────────────────────────────
+1 SINOBANED2_BOT_TOKEN      ✅       FREE  2m  @BotFather
+2 ADMIN_ID                  ✅       FREE  1m  @userinfobot
+3 DATABASE_URL              ✅       FREE  5m  Supabase
+4 GROQ_API_KEY              ✅       FREE  3m  console.groq.com
+5 PAYSTACK_SECRET_KEY       ⚡       FREE  5m  paystack.com
+6 PAYSTACK_PUBLIC_KEY       ⚡       FREE  5m  paystack.com
+7 STRIPE_SECRET_KEY         💳       FREE  5m  stripe.com
+8 STRIPE_PUBLIC_KEY         💳       FREE  5m  stripe.com
+9 TELEGRAM_WEBHOOK_URL      🌐       FREE  auto Vercel
+10 NODE_ENV                 ⚙️       FREE  1m  Manual
+11 LOG_LEVEL                ⚙️       FREE  1m  Manual
+
+Legend:
+  ✅ Required to run
+  ⚡ For bot clones (revenue!)
+  💳 For commission tracking
+  🌐 For Vercel hosting
+  ⚙️ Configuration
+
+
+═════════════════════════════════════════════════════════════════════════════
+
+                         YOU'RE READY!
+
+Everything is documented. Everything is free.
+
+Your next step:
+
+1. Read ENVIRONMENT_SETUP.md for detailed steps
+2. Gather all 11 variables (~20 minutes)
+3. Follow DEPLOYMENT_QUICK_START.txt
+4. Deploy to Vercel
+5. Start earning! 💰
+
+═════════════════════════════════════════════════════════════════════════════
