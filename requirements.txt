@@ -5,4 +5,4 @@ aiosqlite>=0.17.0
 psycopg2-binary>=2.9.0
 python-dotenv>=0.19.0
 requests>=2.28.0
-paystack-python>=2.2.0
+paystackapi>=2.1.0
