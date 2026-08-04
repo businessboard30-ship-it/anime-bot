@@ -1,0 +1,24 @@
+{
+  "functions": {
+    "api/bot.py": {
+      "memory": 512,
+      "maxDuration": 30
+    },
+    "api/cron_autopost.py": {
+      "memory": 512,
+      "maxDuration": 30
+    },
+    "api/cron_broadcast.py": {
+      "memory": 512,
+      "maxDuration": 30
+    },
+    "api/cron_expire_monetization.py": {
+      "memory": 512,
+      "maxDuration": 30
+    },
+    "api/cron_renew_yandex_search.py": {
+      "memory": 512,
+      "maxDuration": 30
+    }
+  }
+}
