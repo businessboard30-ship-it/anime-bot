@@ -1,0 +1,304 @@
+================================================================================
+                  ENVIRONMENT VARIABLES CHECKLIST
+================================================================================
+
+STATUS: Complete list of ALL variables your bot needs
+
+Total Variables: 11
+Required: 4
+Optional: 7
+
+
+================================================================================
+                         REQUIRED VARIABLES (4)
+================================================================================
+
+These MUST be set for the bot to work:
+
+1. SINOBANED2_BOT_TOKEN
+   └─ Get from: @BotFather on Telegram
+   └─ Format: 1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+   └─ Time: 2 minutes
+   └─ Status: [ ] GET THIS FIRST
+   
+2. ADMIN_ID
+   └─ Get from: @userinfobot on Telegram
+   └─ Format: 123456789 (just a number)
+   └─ Time: 1 minute
+   └─ Status: [ ] NEED YOUR USER ID
+   
+3. DATABASE_URL
+   └─ Get from: supabase.com (free PostgreSQL)
+   └─ Format: postgresql://user:pass@host:port/db
+   └─ Time: 5 minutes
+   └─ Status: [ ] CREATE SUPABASE PROJECT
+   
+4. GROQ_API_KEY
+   └─ Get from: console.groq.com (free AI)
+   └─ Format: gsk_abcdef123456...
+   └─ Time: 3 minutes
+   └─ Status: [ ] SIGN UP AT GROQ
+
+
+================================================================================
+                      OPTIONAL VARIABLES (7)
+================================================================================
+
+These are optional but recommended for full features:
+
+5. PAYSTACK_SECRET_KEY
+   └─ Get from: paystack.com (for bot clones)
+   └─ Format: sk_live_abcdef...
+   └─ Time: 5 minutes
+   └─ Optional: Yes (but recommended for payments)
+   └─ Status: [ ] PAYSTACK ACCOUNT
+   
+6. PAYSTACK_PUBLIC_KEY
+   └─ Get from: paystack.com (same place as secret)
+   └─ Format: pk_live_abcdef...
+   └─ Time: Same as #5
+   └─ Optional: Yes
+   └─ Status: [ ] COPY FROM PAYSTACK
+   
+7. STRIPE_SECRET_KEY
+   └─ Get from: stripe.com (for commissions)
+   └─ Format: sk_test_abcdef...
+   └─ Time: 5 minutes
+   └─ Optional: Yes (but good for tracking)
+   └─ Status: [ ] STRIPE ACCOUNT
+   
+8. STRIPE_PUBLIC_KEY
+   └─ Get from: stripe.com (same place as secret)
+   └─ Format: pk_test_abcdef...
+   └─ Time: Same as #7
+   └─ Optional: Yes
+   └─ Status: [ ] COPY FROM STRIPE
+   
+9. TELEGRAM_WEBHOOK_URL
+   └─ Get from: Your Vercel project URL
+   └─ Format: https://my-bot.vercel.app/api/bot
+   └─ Time: Auto (after Vercel deployment)
+   └─ Optional: No (required for Vercel)
+   └─ Status: [ ] SET AFTER VERCEL DEPLOY
+   
+10. NODE_ENV
+    └─ Get from: Set manually
+    └─ Format: production (or development)
+    └─ Time: 1 minute
+    └─ Optional: Yes (defaults to production)
+    └─ Status: [ ] SET TO production
+    
+11. LOG_LEVEL
+    └─ Get from: Set manually
+    └─ Format: INFO (or DEBUG, WARNING, ERROR)
+    └─ Time: 1 minute
+    └─ Optional: Yes (defaults to INFO)
+    └─ Status: [ ] KEEP DEFAULT INFO
+
+
+================================================================================
+                        SETUP ORDER (FASTEST)
+================================================================================
+
+Follow this order - takes ~20 minutes total:
+
+1. [ ] Get Telegram Bot Token (2 min)
+   └─ Open Telegram → Search @BotFather → /newbot
+   └─ Copy: SINOBANED2_BOT_TOKEN
+
+2. [ ] Get Your Admin ID (1 min)
+   └─ Open Telegram → Search @userinfobot → Send message
+   └─ Copy: ADMIN_ID
+
+3. [ ] Create Supabase Database (5 min)
+   └─ Go to supabase.com → Sign up with GitHub
+   └─ Create project → Copy connection string
+   └─ Copy: DATABASE_URL
+
+4. [ ] Get Groq API Key (3 min)
+   └─ Go to console.groq.com → Sign up
+   └─ Create API key
+   └─ Copy: GROQ_API_KEY
+
+5. [ ] (Optional) Paystack Keys (5 min)
+   └─ Go to paystack.com → Create account
+   └─ Get API keys
+   └─ Copy: PAYSTACK_SECRET_KEY, PAYSTACK_PUBLIC_KEY
+
+6. [ ] (Optional) Stripe Keys (5 min)
+   └─ Go to stripe.com → Create account
+   └─ Get API keys
+   └─ Copy: STRIPE_SECRET_KEY, STRIPE_PUBLIC_KEY
+
+7. [ ] Deploy to Vercel (10 min - see VERCEL_DEPLOYMENT.md)
+   └─ Push code to GitHub
+   └─ Import in Vercel
+   └─ Set these env vars in Vercel dashboard
+   └─ Set: TELEGRAM_WEBHOOK_URL to your Vercel URL
+
+TOTAL TIME: ~20-30 minutes
+
+
+================================================================================
+                    QUICK REFERENCE - COPY/PASTE
+================================================================================
+
+After gathering all variables, your .env should look like:
+
+─────────────────────────────────────────────────────────────────────────────
+SINOBANED2_BOT_TOKEN=YOUR_BOT_TOKEN_HERE
+ADMIN_ID=YOUR_ADMIN_ID_HERE
+DATABASE_URL=YOUR_DATABASE_URL_HERE
+GROQ_API_KEY=YOUR_GROQ_KEY_HERE
+PAYSTACK_SECRET_KEY=YOUR_PAYSTACK_SECRET_HERE
+PAYSTACK_PUBLIC_KEY=YOUR_PAYSTACK_PUBLIC_HERE
+STRIPE_SECRET_KEY=YOUR_STRIPE_SECRET_HERE
+STRIPE_PUBLIC_KEY=YOUR_STRIPE_PUBLIC_HERE
+TELEGRAM_WEBHOOK_URL=YOUR_VERCEL_URL_HERE
+NODE_ENV=production
+LOG_LEVEL=INFO
+─────────────────────────────────────────────────────────────────────────────
+
+That's it! Everything else is configured.
+
+
+================================================================================
+                      VERIFICATION CHECKLIST
+================================================================================
+
+After setting all variables, verify each one:
+
+[ ] SINOBANED2_BOT_TOKEN
+    └─ Test: Send /start in Telegram
+    └─ Expected: Bot responds with welcome message
+
+[ ] ADMIN_ID
+    └─ Test: Send /admin in Telegram
+    └─ Expected: Admin dashboard appears (if you're admin)
+
+[ ] DATABASE_URL
+    └─ Test: Bot should save your user ID
+    └─ Expected: No database errors in logs
+
+[ ] GROQ_API_KEY
+    └─ Test: Use AI recommendation feature
+    └─ Expected: AI generates anime recommendations
+
+[ ] PAYSTACK_SECRET_KEY & PUBLIC_KEY
+    └─ Test: Clone bot button should appear
+    └─ Expected: Can start clone payment process
+
+[ ] STRIPE_SECRET_KEY & PUBLIC_KEY
+    └─ Test: Cloned bots can process payments
+    └─ Expected: Commission tracking works
+
+[ ] TELEGRAM_WEBHOOK_URL (if using Vercel)
+    └─ Test: Send message on Telegram
+    └─ Expected: Bot responds within 1 second
+
+
+================================================================================
+                         TROUBLESHOOTING
+================================================================================
+
+Problem: "Bot not responding"
+└─ Check: SINOBANED2_BOT_TOKEN is correct
+└─ Check: TELEGRAM_WEBHOOK_URL is set (if using Vercel)
+└─ Fix: Verify token at @BotFather
+
+Problem: "Database connection failed"
+└─ Check: DATABASE_URL is correct
+└─ Check: Supabase project is created
+└─ Fix: Test with: psql "YOUR_DATABASE_URL"
+
+Problem: "AI features not working"
+└─ Check: GROQ_API_KEY is set
+└─ Check: Groq console shows active API
+└─ Fix: Regenerate key at console.groq.com
+
+Problem: "Payment buttons don't appear"
+└─ Check: PAYSTACK keys are set
+└─ Check: Paystack account is verified
+└─ Fix: Use test keys first
+
+Problem: "Vercel bot doesn't respond"
+└─ Check: TELEGRAM_WEBHOOK_URL matches Vercel URL
+└─ Check: All env vars in Vercel dashboard match .env
+└─ Fix: Redeploy after changing env vars
+
+
+================================================================================
+                      WHERE TO PUT VARIABLES
+================================================================================
+
+LOCAL TESTING:
+  Create .env file in project root with all variables
+  └─ python main.py will read from .env
+
+VERCEL DEPLOYMENT:
+  Set in Vercel Dashboard → Settings → Environment Variables
+  └─ Vercel will load them automatically
+  └─ Don't need .env file (optional for reference only)
+
+RAILWAY DEPLOYMENT:
+  Set in Railway project settings → Variables
+  └─ Same process as Vercel
+
+
+================================================================================
+                        SUMMARY TABLE
+================================================================================
+
+Variable                  Required  Cost   Time   Source
+───────────────────────────────────────────────────────────────────────────
+SINOBANED2_BOT_TOKEN      YES       FREE   2m    @BotFather
+ADMIN_ID                  YES       FREE   1m    @userinfobot
+DATABASE_URL              YES       FREE   5m    supabase.com
+GROQ_API_KEY              YES       FREE   3m    console.groq.com
+PAYSTACK_SECRET_KEY       NO        FREE   5m    paystack.com
+PAYSTACK_PUBLIC_KEY       NO        FREE   5m    paystack.com
+STRIPE_SECRET_KEY         NO        FREE   5m    stripe.com
+STRIPE_PUBLIC_KEY         NO        FREE   5m    stripe.com
+TELEGRAM_WEBHOOK_URL      NO*       -      auto  Your Vercel URL
+NODE_ENV                  NO        -      1m    Set manually
+LOG_LEVEL                 NO        -      1m    Set manually
+
+* Required only if deploying to Vercel
+
+
+================================================================================
+                        NEXT STEPS
+================================================================================
+
+1. Gather all variables using the setup order above
+
+2. Create .env file (for local testing):
+   cp .env.example .env
+   # Edit with your variables
+
+3. Test locally:
+   pip install -r requirements.txt
+   python main.py
+
+4. Deploy to Vercel (see VERCEL_DEPLOYMENT.md):
+   git add . && git commit && git push
+   # Then Vercel dashboard for env vars
+
+5. Monitor:
+   Check bot works in Telegram
+   Check Vercel logs for errors
+   Check admin dashboard for stats
+
+Done! Your bot is earning 🚀
+
+
+================================================================================
+                      SUPPORT
+================================================================================
+
+Each variable has a dedicated section in ENVIRONMENT_SETUP.md
+Read that file for detailed instructions on each one
+
+Questions? Everything is documented!
+
+================================================================================
