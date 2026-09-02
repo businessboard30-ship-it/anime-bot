@@ -1,10 +1,12 @@
 # path: discord_bot/cogs/_views_invites.py
 
 """
-Invite tracker setup wizard. Posted automatically the moment the bot
-joins a server (InvitesCog.post_setup_wizard_on_join) — no slash command
-at all, same "no commands, just a wizard" approach as welcome.py's
-post_setup_wizard_on_join.
+Invite tracker setup wizard. Posted automatically some time after the
+bot joins a server (InvitesCog._scheduler_loop, delayed rather than
+immediate — see invites.py), and re-postable any time via /invites setup
+for when the auto-posted one gets buried or deleted. Setup itself is
+still all buttons, no typed arguments — the slash command's only job is
+to summon the same wizard, not replace it.
 
 Shape mirrors _views_download_wizard.py's "auto-create OR pick a
 channel" pattern exactly, just pointed at the invite tracker's announce
@@ -32,10 +34,10 @@ def _clone_id_of(interaction: discord.Interaction):
 
 
 async def _check_access(interaction: discord.Interaction, invoker_id) -> bool:
-    # invoker_id is always None here (the wizard is posted on-join, not by
-    # a specific admin running a command) so this always falls back to the
-    # permission check — any Manage Server holder can use it, which is the
-    # point: "no more commands", anyone qualified just uses the buttons.
+    # invoker_id is None for the auto-posted wizard (no specific admin ran
+    # a command) and set to the invoking user's id for one posted via
+    # /invites setup — check_wizard_access handles both: None falls back
+    # to the permission check, a real id restricts to just that user.
     return await check_wizard_access(interaction, invoker_id, "invites", "manage_guild", "Manage Server")
 
 
