@@ -335,3 +335,4 @@ class InvitesCog(GuildOnlyCog):
 
 async def setup(bot):
     await bot.add_cog(InvitesCog(bot))
+    logger.info("[invites] ✅ InvitesCog loaded — /invites setup command registered")
