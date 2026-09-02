@@ -2027,6 +2027,16 @@ class Database:
             CREATE UNIQUE INDEX IF NOT EXISTS discord_invite_tracker_config_guild_clone_key
             ON discord_invite_tracker_config (guild_id, COALESCE(clone_id, -1))
         """)
+        # wizard_due_at: when the auto-posted setup wizard is scheduled to
+        # go out — set to now()+1h on guild join rather than posting right
+        # away (InvitesCog._scheduler_loop is what actually posts it once
+        # due). NULL once posted (remember_wizard_message doesn't touch
+        # it, but get_due_invite_wizard_guilds excludes anything with a
+        # wizard_message_id already set) or if the wizard was instead
+        # brought up manually via /invites setup before the delay elapsed.
+        await conn.execute(
+            "ALTER TABLE discord_invite_tracker_config ADD COLUMN IF NOT EXISTS wizard_due_at TIMESTAMPTZ"
+        )
 
         # Live cache of each active invite's use-count/inviter, refreshed on
         # every on_member_join diff and rebuilt wholesale on bot startup and
@@ -7361,11 +7371,13 @@ class Database:
                 "guild_id": guild_id, "clone_id": clone_id,
                 "enabled": True, "channel_id": None, "channel_auto_created": False,
                 "wizard_channel_id": None, "wizard_message_id": None, "wizard_invoker_id": None,
+                "wizard_due_at": None,
             }
 
     async def set_invite_tracker_config(self, guild_id: int, clone_id: Optional[int] = None, **fields) -> None:
         """fields may include enabled, channel_id, channel_auto_created,
-        wizard_channel_id, wizard_message_id, wizard_invoker_id. Upserts."""
+        wizard_channel_id, wizard_message_id, wizard_invoker_id,
+        wizard_due_at. Upserts."""
         current = await self.get_invite_tracker_config(guild_id, clone_id)
         merged = {**current, **fields}
         pool = await get_pool()
@@ -7374,15 +7386,36 @@ class Database:
                 """
                 INSERT INTO discord_invite_tracker_config
                     (guild_id, clone_id, enabled, channel_id, channel_auto_created,
-                     wizard_channel_id, wizard_message_id, wizard_invoker_id, updated_at)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+                     wizard_channel_id, wizard_message_id, wizard_invoker_id, wizard_due_at, updated_at)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
                 ON CONFLICT (guild_id, (COALESCE(clone_id, -1))) DO UPDATE SET
                     enabled = $3, channel_id = $4, channel_auto_created = $5,
-                    wizard_channel_id = $6, wizard_message_id = $7, wizard_invoker_id = $8, updated_at = NOW()
+                    wizard_channel_id = $6, wizard_message_id = $7, wizard_invoker_id = $8,
+                    wizard_due_at = $9, updated_at = NOW()
                 """,
                 guild_id, clone_id, merged["enabled"], merged["channel_id"], merged["channel_auto_created"],
                 merged["wizard_channel_id"], merged["wizard_message_id"], merged["wizard_invoker_id"],
+                merged["wizard_due_at"],
             )
+
+    async def get_due_invite_wizard_guilds(self, clone_id: Optional[int] = None) -> list:
+        """Guild ids whose scheduled auto-wizard post time has passed and
+        which haven't had one posted yet (wizard_message_id still NULL —
+        covers both "never posted" and "posted manually via /invites setup
+        before the delay elapsed", either of which should cancel the
+        pending auto-post). Powers InvitesCog._scheduler_loop."""
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT guild_id FROM discord_invite_tracker_config
+                WHERE clone_id IS NOT DISTINCT FROM $1
+                  AND wizard_due_at IS NOT NULL AND wizard_due_at <= NOW()
+                  AND wizard_message_id IS NULL
+                """,
+                clone_id,
+            )
+            return [r["guild_id"] for r in rows]
 
     async def get_invite_cache(self, guild_id: int, clone_id: Optional[int] = None) -> Dict[str, Dict]:
         """invite_code -> {"uses": int, "inviter_id": int|None, "is_vanity": bool} —
