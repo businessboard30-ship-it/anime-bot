@@ -1,7 +1,7 @@
 {
   "lang_name": "Italiano",
-  "welcome_default": "👋 Ciao {name}! Questo bot fa 3 cose: 🎬 scoperta anime, 🛡️ gestione gruppi, 🧰 utilità.\n\nScegli un'area qui sotto, oppure tocca ☰ per l'elenco completo dei comandi.",
-  "welcome_clone": "👋 Ciao {name}! Benvenuto su {clone_name}.{tagline}\n\nAnime, strumenti per gruppi e utilità — scegli un'area qui sotto.",
+  "welcome_default": "👋 Ciao {name}! Tocca 📥 Download Latest AZIGI per avere l'ultima versione, oppure usa 🤖 chat IA, 🛡️ strumenti di gruppo e 🧰 utilità.\n\nScegli un'opzione qui sotto o tocca ☰ per tutti i comandi.",
+  "welcome_clone": "👋 Ciao {name}! Benvenuto su {clone_name}.{tagline}\n\nOttieni l'ultimo AZIGI, chatta con l'IA, gestisci i gruppi e usa strumenti utili — scegli un'opzione qui sotto.",
   "quick_access": "I pulsanti di accesso rapido sono fissati qui sotto 👇",
   "main_menu_title": "🏠 Menu principale\n\nScegli un'area:",
   "choose_language": "🌐 Scegli la tua lingua:",

@@ -1,7 +1,7 @@
 {
   "lang_name": "日本語",
-  "welcome_default": "👋 {name}さん、こんにちは！このボットは3つのことができます：🎬 アニメ発見、🛡️ グループ管理、🧰 便利機能。\n\n下からエリアを選んでください。☰をタップすると全コマンド一覧が見られます。",
-  "welcome_clone": "👋 {name}さん、こんにちは！{clone_name}へようこそ。{tagline}\n\nアニメ、グループツール、便利機能 — 下からエリアを選んでください。",
+  "welcome_default": "👋 こんにちは {name}！📥 Download Latest AZIGI をタップして最新版を入手するか、🤖 AIチャット、🛡️ グループツール、🧰 ユーティリティをご利用ください。\n\n下から選ぶか、☰ で全コマンドを表示できます。",
+  "welcome_clone": "👋 こんにちは {name}！{clone_name} へようこそ。{tagline}\n\n最新のAZIGIの入手、AIチャット、グループ管理、便利ツール — 下から選んでください。",
   "quick_access": "クイックアクセスボタンは下にピン留めされています 👇",
   "main_menu_title": "🏠 メインメニュー\n\nエリアを選んでください：",
   "choose_language": "🌐 言語を選んでください：",

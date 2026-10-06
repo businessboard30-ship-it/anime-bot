@@ -1,7 +1,7 @@
 {
   "lang_name": "Português",
-  "welcome_default": "👋 Oi {name}! Este bot faz 3 coisas: 🎬 descoberta de anime, 🛡️ gerenciamento de grupo, 🧰 utilitários.\n\nEscolha uma área abaixo, ou toque em ☰ para a lista completa de comandos.",
-  "welcome_clone": "👋 Oi {name}! Bem-vindo ao {clone_name}.{tagline}\n\nAnime, ferramentas de grupo e utilitários — escolha uma área abaixo.",
+  "welcome_default": "👋 Olá {name}! Toque em 📥 Download Latest AZIGI para obter a versão mais recente, ou use 🤖 chat com IA, 🛡️ ferramentas de grupo e 🧰 utilitários.\n\nEscolha uma opção abaixo ou toque em ☰ para ver todos os comandos.",
+  "welcome_clone": "👋 Olá {name}! Bem-vindo ao {clone_name}.{tagline}\n\nObtenha o AZIGI mais recente, converse com IA, gerencie grupos e use ferramentas úteis — escolha uma opção abaixo.",
   "quick_access": "Os botões de acesso rápido estão fixados abaixo 👇",
   "main_menu_title": "🏠 Menu principal\n\nEscolha uma área:",
   "choose_language": "🌐 Escolha seu idioma:",

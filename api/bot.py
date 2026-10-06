@@ -327,7 +327,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         elif callback_data == "tools_market_info":
             await safe_edit_message(query, 
-                "📈 **Stocks & Currency**\n\n/stock <ticker> — stock quote\n/convert <amount> <from> <to> — currency convert",
+                "��� **Stocks & Currency**\n\n/stock <ticker> — stock quote\n/convert <amount> <from> <to> — currency convert",
                 reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Back", callback_data="m_tools")]]),
                 parse_mode="Markdown"
             )
@@ -1103,22 +1103,23 @@ async def show_clone_about(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"ℹ️ **About {esc_md(clone_name)} — How This Bot Works**\n\n"
         f"**What this is**\n"
         f"{esc_md(clone_name)} is a *clone* — an independent, fully working copy of a larger "
-        f"anime, group-management, and utility bot. It isn't a stripped-down demo or a bot that "
+        f"AZIGI, group-management, and utility bot. It isn't a stripped-down demo or a bot that "
         f"just forwards your messages somewhere else: it runs its own Telegram bot account, has "
         f"its own webhook, its own users, and (if the owner has activated it) its own billing, "
-        f"while sharing the same underlying anime database, search index, and feature code as "
-        f"every other bot in this network. Think of it the way a franchise location works — same "
+        f"while sharing the same feature code as every other bot in this network. "
+        f"Think of it the way a franchise location works — same "
         f"menu and same kitchen equipment as headquarters, but a different storefront, a different "
         f"owner, and its own customers.\n\n"
         f"**Why clones exist**\n"
-        f"Building and hosting a Telegram bot with anime discovery, moderation tools, AI chat, "
+        f"Building and hosting a Telegram bot with premium group access, moderation tools, AI chat, "
         f"and a store from scratch is slow and expensive. Instead, one person creates "
         f"a bot with @BotFather, pastes the token into the main bot's \"Clone Bot\" flow, pays a "
         f"one-time setup fee, and instantly has a bot with all of that functionality live under "
         f"their own name and branding — no server to rent, no code to write, no database to manage.\n\n"
         f"**What you can do here**\n"
-        f"• **🎬 Anime** — search titles, browse trending/latest/ongoing/seasonal releases, and "
-        f"submit anime that isn't in the database yet for review.\n"
+        f"• **📥 Download Latest AZIGI** — the newest AZIGI release is shared in the Premium "
+        f"Group. Pay the join fee and you're added automatically with a private invite link.\n"
+        f"• **🤖 AI Chat** — talk to an AI assistant about anything.\n"
         f"• **🛡️ Group Tools** — add this bot to a group or channel you admin to get warnings, "
         f"bans, mutes, kicks, word filters, configurable moderation settings, a rules command, "
         f"and basic group activity stats.\n"
@@ -1138,9 +1139,9 @@ async def show_clone_about(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"account and set their *own* prices, so revenue from this specific bot goes directly to "
         f"them instead of through the shared account.\n\n"
         f"**Data and privacy**\n"
-        f"Your searches, group settings, and submissions are stored against this clone's own "
-        f"ID, kept separate from every other clone's data, even though the underlying anime "
-        f"catalog and code are shared infrastructure. The clone owner does not get access to "
+        f"Your group settings and account data are stored against this clone's own "
+        f"ID, kept separate from every other clone's data, even though the underlying "
+        f"code is shared infrastructure. The clone owner does not get access to "
         f"other clones' users, and other clones' owners do not get access to this bot's users.\n\n"
         f"**Reliability**\n"
         f"Even though many clones run on shared code, each one has its own Telegram webhook "
@@ -1150,8 +1151,8 @@ async def show_clone_about(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"account.\n\n"
         f"**In short**\n"
         f"You're talking to a real, independently-owned bot that happens to share its engine with "
-        f"a wider network. Everything in the menus below — search, group tools, AI tools, the "
-        f"store, premium — works the same way it would on any other bot in this network, just "
+        f"a wider network. Everything in the menus below — AZIGI, group tools, AI tools, "
+        f"premium — works the same way it would on any other bot in this network, just "
         f"under this bot's name and (if the owner set one) this bot's own branding."
     )
 
@@ -1175,7 +1176,8 @@ async def show_all_commands(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     text = (
         "☰ **All Commands**\n\n"
-        "**🎬 Anime**\n/start · /premium · /leaderboard\n\n"
+        "**📥 AZIGI**\n/azigi — Download Latest AZIGI (join the Premium Group)\n\n"
+        "**🏠 General**\n/start · /premium · /leaderboard\n\n"
         "**🛡️ Group** (admin, in-group)\n/warn /ban /mute /kick /filter /modsettings /rules /groupstats\n\n"
         "**🧰 Tools**\n/ai /aiimage /stock /convert /news\n\n"
         "**⚙️ Account**\n/subscribe /stats /cancel"
@@ -1192,6 +1194,7 @@ async def show_all_commands(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # button" Telegram provides; set_my_commands populates it).
 PRIVATE_CHAT_COMMANDS = [
     ("start", "Open the main menu"),
+    ("azigi", "Download Latest AZIGI"),
     ("premium", "View premium tiers"),
     ("ai", "Chat with AI"),
     ("stock", "Stock price lookup"),
@@ -1310,6 +1313,7 @@ def get_application() -> Application:
             await _set_native_command_menu(app)
         _app.post_init = startup
         _app.add_handler(CommandHandler("start", start))
+        _app.add_handler(CommandHandler("azigi", premium_group_handler.show_azigi_download))
         _app.add_handler(CommandHandler("admin", admin_panel.admin_command))
         from handlers import subscription
         _app.add_handler(CommandHandler("subscribe", subscription.handle_subscribe_ai))
@@ -1453,6 +1457,7 @@ def _register_shared_handlers(app: Application):
     differs, which handlers read to swap branding text (Part 3.1).
     """
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("azigi", premium_group_handler.show_azigi_download))
     app.add_handler(CommandHandler("language", language_handler.language_command))
     app.add_handler(CommandHandler("admin", admin_panel.admin_command))
     from handlers import subscription

@@ -888,7 +888,7 @@ async def _register_clone(update: Update, context: ContextTypes.DEFAULT_TYPE, to
 **Name:** {safe_name}
 **Status:** Active
 
-Messages sent to @{safe_username} now get real anime-discovery, search, and \
+Messages sent to @{safe_username} now get the AZIGI premium group, AI chat, and \
 submission responses with your branding — served by our shared infrastructure.
 
 Come back any time to update your branding or check on your clone.
