@@ -26,10 +26,9 @@ class KeyboardGenerator:
     @staticmethod
     def main_menu(clone_mode: bool = False, clone_id: int = None) -> InlineKeyboardMarkup:
         """
-        Main menu, grouped by area instead of one long flat list (previously
-        13 buttons, almost all anime — didn't reflect that the bot is really
-        ~1/3 anime, ~1/3 group management, ~1/3 utilities). Each button below
-        opens a short submenu for that area. clone_mode hides "Clone Bot".
+        Main menu for the bot's actual features: anime discovery, group
+        moderation, utilities, and premium AZIGI access. Each button opens a
+        focused submenu. clone_mode hides "Clone Bot".
         """
         keyboard = [
             [

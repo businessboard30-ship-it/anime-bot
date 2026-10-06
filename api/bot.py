@@ -189,11 +189,23 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     clone_config = context.bot_data.get("clone_config")
 
-    menu_text = "🏠 **Main Menu**\n\nChoose an area:"
+    menu_text = (
+        "🏠 **Main Menu**\n\n"
+        "Anime discovery, group moderation, utilities, and premium AZIGI access.\n"
+        "Choose an option below:"
+    )
+    menu_keyboard = keyboard_gen.main_menu(
+        clone_mode=bool(clone_config),
+        clone_id=(clone_config or {}).get("clone_id"),
+    )
+    menu_keyboard = InlineKeyboardMarkup(
+        list(menu_keyboard.inline_keyboard) + [[premium_group_handler.azigi_download_button()]]
+    )
 
-    await safe_edit_message(query, 
+    await safe_edit_message(
+        query,
         menu_text,
-        reply_markup=keyboard_gen.main_menu(clone_mode=bool(clone_config), clone_id=(clone_config or {}).get("clone_id")),
+        reply_markup=menu_keyboard,
         parse_mode="Markdown"
     )
 
@@ -327,7 +339,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         elif callback_data == "tools_market_info":
             await safe_edit_message(query, 
-                "��� **Stocks & Currency**\n\n/stock <ticker> — stock quote\n/convert <amount> <from> <to> — currency convert",
+                "���� **Stocks & Currency**\n\n/stock <ticker> — stock quote\n/convert <amount> <from> <to> — currency convert",
                 reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Back", callback_data="m_tools")]]),
                 parse_mode="Markdown"
             )
@@ -675,7 +687,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # ═══════════════════════════════════════════════════════════
         # MARKETPLACE ROUTING
-        # ═══════════════════════════════════════════════════════════
+        # ══════════════════════════��════════════════════════════════
         elif callback_data == "m_market":
             await ads_marketplace_handler.show_market_menu(update, context)
 
