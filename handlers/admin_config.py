@@ -6,11 +6,11 @@ Time-based settings, pricing, and feature toggles
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
-from config import ADMIN_ID, EMOJI_COLORS, BOT_TOKEN, PAYSTACK_WEBHOOK_SECRET, DATABASE_URL, PUBLIC_BASE_URL, LOG_GROUP_ID
+from config import ADMIN_ID, EMOJI_COLORS, BOT_TOKEN, PAYSTACK_SECRET_KEY, PAYSTACK_WEBHOOK_SECRET, DATABASE_URL, PUBLIC_BASE_URL, LOG_GROUP_ID
 from modules import superbot_adapter, botstore_adapter
 from database import db
 from paystack import paystack
-from utils import safe_edit_message
+from utils import safe_edit_message, set_owner_payment_immunity, OWNER_PAYMENT_IMMUNE
 
 def _clone_id(context) -> int:
     """0 for the main bot, else the running clone's id — tier, quota, and
@@ -226,6 +226,33 @@ async def handle_config_message(update: Update, context: ContextTypes.DEFAULT_TY
             f"{EMOJI_COLORS.get('error', '❌')} Invalid input. Please enter a number."
         )
 
+async def cmd_toggle_owner_payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin-only toggle for the founder's paid-feature immunity."""
+    if update.effective_user.id != ADMIN_ID:
+        return
+
+    current = OWNER_PAYMENT_IMMUNE
+    if context.args:
+        requested = context.args[0].strip().lower()
+        if requested in {"on", "immune", "yes", "true"}:
+            current = True
+        elif requested in {"off", "pay", "false", "no"}:
+            current = False
+        else:
+            await update.message.reply_text("Usage: /toggleownerpayment [on|off]")
+            return
+    else:
+        current = not current
+
+    set_owner_payment_immunity(current)
+    saved = await db.update_config("owner_payment_immune", "true" if current else "false")
+    state = "IMMUNE (payment bypassed)" if current else "NOT IMMUNE (payment required)"
+    await update.message.reply_text(
+        f"Owner payment immunity: {state}.\\n"
+        f"Database: {'saved' if saved else 'runtime only'}"
+    )
+
+
 async def cmd_envcheck(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Admin-only: shows which required env vars this RUNNING process actually
     sees (masked), so you can tell a Vercel variable typo/missing-redeploy
@@ -243,7 +270,7 @@ async def cmd_envcheck(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"BOT_TOKEN: {mask(BOT_TOKEN if BOT_TOKEN != 'your_token_here' else '')}",
         f"ADMIN_ID: {'✅ set (' + str(ADMIN_ID) + ')' if ADMIN_ID else '❌ NOT SET'}",
         f"DATABASE_URL: {mask(DATABASE_URL)}",
-        f"PAYSTACK_WEBHOOK_SECRET: {mask(PAYSTACK_WEBHOOK_SECRET)}",
+        f"PAYSTACK_SECRET_KEY: {mask(PAYSTACK_SECRET_KEY)}",
         f"PAYSTACK_WEBHOOK_SECRET: {mask(PAYSTACK_WEBHOOK_SECRET)}",
         f"PUBLIC_BASE_URL: {'✅ ' + PUBLIC_BASE_URL if PUBLIC_BASE_URL else '❌ NOT SET'}",
         f"LOG_GROUP_ID: {'✅ set (' + str(LOG_GROUP_ID) + ')' if LOG_GROUP_ID else '❌ NOT SET (admin event logging disabled)'}",

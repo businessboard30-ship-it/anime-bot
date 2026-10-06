@@ -667,7 +667,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif callback_data.startswith("bot_view_"):
             await bot_manager_handler.show_bot_detail(update, context)
 
-        # ═══════════════════════════════════════════════════════════
+        # ��══════════════════════════════════════════════════════════
         # MARKETPLACE ROUTING
         # ═══════════════════════════════════════════════════════════
         elif callback_data == "m_market":
@@ -1349,7 +1349,9 @@ def get_application() -> Application:
         # Admin config
         _app.add_handler(CommandHandler("config", admin_config.show_config_panel))
         _app.add_handler(CommandHandler("envcheck", admin_config.cmd_envcheck))
+        _app.add_handler(CommandHandler("toggleownerpayment", admin_config.cmd_toggle_owner_payment))
         _app.add_handler(CommandHandler("getchatid", admin_config.cmd_getchatid))
+
         _app.add_handler(CommandHandler("testlog", admin_config.cmd_testlog))
         _app.add_handler(CommandHandler("setpremium", admin_config.cmd_setpremium))
         _app.add_handler(CommandHandler("confirmpay", admin_config.cmd_confirmpay))

@@ -5,6 +5,15 @@ Utility functions for the Telegram bot
 from config import ADMIN_ID
 from telegram.error import BadRequest
 
+# Runtime switch controlled by the admin command /toggleownerpayment.
+# True means the founder bypasses paid-feature checks; False requires payment.
+OWNER_PAYMENT_IMMUNE = True
+
+
+def set_owner_payment_immunity(enabled: bool) -> None:
+    global OWNER_PAYMENT_IMMUNE
+    OWNER_PAYMENT_IMMUNE = enabled
+
 
 def is_founder(user_id: int) -> bool:
     """Check if user is the bot founder/admin (main bot's ADMIN_ID env var only)."""
@@ -21,7 +30,7 @@ def is_owner(user_id: int, context=None) -> bool:
     so clone owners get full access on their own clone, not just the single
     global admin on the main bot.
     """
-    if is_founder(user_id):
+    if OWNER_PAYMENT_IMMUNE and is_founder(user_id):
         return True
     if context is not None:
         bot_data = getattr(context, "bot_data", None)
