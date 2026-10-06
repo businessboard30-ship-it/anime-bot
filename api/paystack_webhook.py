@@ -6,7 +6,7 @@ import logging
 from http.server import BaseHTTPRequestHandler
 
 from database import db
-from selar import normalize_sale, product_config, valid_secret
+from paystack import normalize_sale, product_config, valid_secret
 
 logger = logging.getLogger(__name__)
 

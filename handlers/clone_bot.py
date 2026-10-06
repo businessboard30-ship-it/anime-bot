@@ -7,7 +7,7 @@ from database import db
 import flow_state
 from keyboards import keyboard_gen
 from formatter import AnimeFormatter
-from selar import selar
+from paystack import paystack
 from config import (
     EMOJI_COLORS, CLONE_BOT_FEE_GHS, CLONE_BOT_REAL_ENABLED, PUBLIC_BASE_URL,
     CLONE_MONETIZATION_FEE_GHS, CLONE_MONETIZATION_DAYS, PRICE_REGISTRY, ADMIN_ID,
@@ -138,7 +138,7 @@ async def handle_monetization_activate(update: Update, context: ContextTypes.DEF
         return
 
     email = f"user_{user_id}@animebot.com"
-    payment_result = selar.initialize_payment(
+    payment_result = paystack.initialize_payment(
         email,
         CLONE_MONETIZATION_FEE_GHS * 100,  # GHS -> pesewas
         user_id,
@@ -294,7 +294,7 @@ async def show_payment_settings(update: Update, context: ContextTypes.DEFAULT_TY
     provider = cd.get("payment_provider", "main")
     provider_label = {
         "main": "the main bot's account (default)",
-        "selar": "your own connected Selar key",
+        "paystack": "your own connected Selar key",
         "stripe": "your own connected Stripe key",
     }.get(provider, "the main bot's account (default)")
 
@@ -312,9 +312,9 @@ async def show_payment_settings(update: Update, context: ContextTypes.DEFAULT_TY
 
 
 async def handle_set_payment_provider(update: Update, context: ContextTypes.DEFAULT_TYPE, provider: str, clone_id: int):
-    """callback_data == clone_paysetprovider_<main|selar|stripe>_<clone_id>.
+    """callback_data == clone_paysetprovider_<main|paystack|stripe>_<clone_id>.
     'main' switches back to the default immediately (and wipes any stored
-    key). 'selar'/'stripe' prompts for the key, caught by
+    key). 'paystack'/'stripe' prompts for the key, caught by
     handle_payment_key_message."""
     query = update.callback_query
     user_id = update.effective_user.id
@@ -338,7 +338,7 @@ async def handle_set_payment_provider(update: Update, context: ContextTypes.DEFA
 
     context.user_data["awaiting_payment_key"] = {"clone_id": clone_id, "provider": provider}
     await flow_state.sync(context, update.effective_user.id, 0, flow="clone_payment_key")
-    gateway_name = "Selar" if provider == "selar" else "Stripe"
+    gateway_name = "Selar" if provider == "paystack" else "Stripe"
     await safe_edit_message(query, 
         f"{EMOJI_COLORS['submit']} Send your {gateway_name} **secret key**.\n\n"
         f"It's encrypted before storage and used only to route this bot's own payments.",
@@ -377,7 +377,7 @@ async def handle_payment_key_message(update: Update, context: ContextTypes.DEFAU
     except Exception:
         pass
 
-    gateway_name = "Selar" if provider == "selar" else "Stripe"
+    gateway_name = "Selar" if provider == "paystack" else "Stripe"
     await update.message.reply_text(
         f"{EMOJI_COLORS['success']} {gateway_name} connected. This bot's payments will now go to your own account.",
         reply_markup=keyboard_gen.clone_payment_key_prompt_keyboard(clone_id)
@@ -486,8 +486,8 @@ async def handle_payment_initiation(update: Update, context: ContextTypes.DEFAUL
     user_id = update.effective_user.id
     email = f"user_{user_id}@animebot.com"  # Fallback email
 
-    if query.data == "selar_checkout":
-        payment_result = selar.initialize_payment(
+    if query.data == "paystack_checkout":
+        payment_result = paystack.initialize_payment(
             email,
             CLONE_BOT_FEE_GHS * 100,  # Convert GHS to pesewas
             user_id,

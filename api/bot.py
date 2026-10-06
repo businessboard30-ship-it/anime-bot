@@ -502,7 +502,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     parse_mode="Markdown"
                 )
 
-        elif callback_data == "selar_checkout":
+        elif callback_data == "paystack_checkout":
             await clone_bot.handle_payment_initiation(update, context)
 
         elif callback_data == "clone_paid":
@@ -664,7 +664,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.answer(f"Alert for {coin} removed")
             await superbot_handler.show_crypto_alerts(update, context)
 
-        # ═══════════════════════════════════════════════════════════
+        # ═══════════════════════════════════════════════════════��═══
         # SUPERBOT ROUTING
         # ═══════════════════════════════════════════════════════════
         elif callback_data == "show_premium_tiers":

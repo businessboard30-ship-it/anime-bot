@@ -353,7 +353,7 @@ class KeyboardGenerator:
         """Keyboard for clone payment with Selar"""
         keyboard = [
             [
-                InlineKeyboardButton(f"{EMOJI_COLORS['clone']} Pay {amount_ghs} GHS", callback_data="selar_checkout")
+                InlineKeyboardButton(f"{EMOJI_COLORS['clone']} Pay {amount_ghs} GHS", callback_data="paystack_checkout")
             ],
             [
                 InlineKeyboardButton("ℹ️ What's Included", callback_data="clone_info"),
@@ -500,7 +500,7 @@ class KeyboardGenerator:
 
         keyboard = [
             [InlineKeyboardButton(label("🏦 Use Main Bot (default)", "main"), callback_data=f"clone_paysetprovider_main_{clone_id}")],
-            [InlineKeyboardButton(label("📲 Connect Selar", "selar"), callback_data=f"clone_paysetprovider_selar_{clone_id}")],
+            [InlineKeyboardButton(label("📲 Connect Selar", "paystack"), callback_data=f"clone_paysetprovider_paystack_{clone_id}")],
             [InlineKeyboardButton(label("💳 Connect Stripe", "stripe"), callback_data=f"clone_paysetprovider_stripe_{clone_id}")],
             [InlineKeyboardButton("⬅️ Back", callback_data=f"clone_monetization_{clone_id}")]
         ]

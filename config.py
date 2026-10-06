@@ -36,7 +36,7 @@ ANILIST_ENDPOINT = "https://graphql.anilist.co"
 JIKAN_ENDPOINT = "https://api.jikan.moe/v4"
 
 # Payment Configuration
-SELAR_WEBHOOK_SECRET = os.getenv("SELAR_WEBHOOK_SECRET", "")
+PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
 CLONE_BOT_FEE_GHS = 50  # 50 GHS in pesewas = 5000
 
 # --- Shared AI Chat / Download paywall ---------------------------------------
@@ -59,7 +59,7 @@ PREMIUM_GROUP_FEE_GHS = 20
 PREMIUM_GROUP_INVITE_LINK = os.getenv("PREMIUM_GROUP_INVITE_LINK", "")
 
 # --- Clone monetization gate --------------------------------------------------
-# A clone owner can (a) connect their own Selar/Stripe key instead of
+# A clone owner can (a) connect their own Paystack/Stripe key instead of
 # routing through the main bot's account, and (b) set their own price for
 # every paywalled feature their clone runs — but both are gated behind this
 # recurring activation fee (handlers/clone_bot.py's "💰 Monetization" menu).
