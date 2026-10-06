@@ -60,6 +60,10 @@ UTILITY_SUB_DAYS = 60  # ~2 months
 # set this before relying on the feature.
 PREMIUM_GROUP_FEE_GHS = 20
 PREMIUM_GROUP_INVITE_LINK = os.getenv("PREMIUM_GROUP_INVITE_LINK", "")
+# Numeric chat id of the premium group (e.g. -1001234567890). When set, paid
+# users get a personal single-use invite link and join instantly; the bot must
+# be an admin there with "Invite users via link" rights.
+PREMIUM_GROUP_CHAT_ID = os.getenv("PREMIUM_GROUP_CHAT_ID", "")
 
 # --- Clone monetization gate --------------------------------------------------
 # A clone owner can (a) connect their own Paystack/Stripe key instead of

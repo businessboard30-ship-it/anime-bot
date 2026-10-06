@@ -81,6 +81,11 @@ async def grant_review(context, review: Dict[str, Any]) -> None:
         await db.activate_image_search_yandex_subscription(user_id, clone_id, IMAGE_SEARCH_YANDEX_DAYS)
     elif payment_type == "premium_group":
         await db.set_premium_tier(user_id, clone_id=clone_id)
+        from handlers.premium_group_handler import deliver_premium_group_access
+        try:
+            await deliver_premium_group_access(context.bot, user_id)
+        except Exception as e:
+            logger.error(f"[v0] Premium group auto-join DM failed for {user_id}: {e}")
     elif payment_type == "superbot_tier":
         from modules import superbot_adapter
         await superbot_adapter.set_user_tier(user_id, details["tier"])
@@ -172,7 +177,7 @@ async def handle_user_verification(update, context, callback_data: str) -> bool:
                          clone_id=clone_id, details=details)
     context.user_data.pop(key, None)
     await db.delete_pending_payment_intent(reference)
-    await update.safe_edit_message(callback_query, "Payment report sent to the admin. Access will be enabled after approval.")
+    await safe_edit_message(update.callback_query, "Payment report sent to the admin. Access will be enabled after approval.")
     return True
 
 

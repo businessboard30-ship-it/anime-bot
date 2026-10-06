@@ -60,6 +60,14 @@ class handler(BaseHTTPRequestHandler):
             await db.mark_image_search_paid(user_id, clone_id=clone_id)
         elif entitlement == "premium_group":
             await db.set_premium_tier(user_id, clone_id=clone_id)
+            from telegram import Bot
+            from config import BOT_TOKEN
+            from handlers.premium_group_handler import deliver_premium_group_access
+            try:
+                async with Bot(BOT_TOKEN) as bot:
+                    await deliver_premium_group_access(bot, user_id)
+            except Exception:
+                logger.exception("[v0] Premium group auto-join DM failed for %s", user_id)
         elif entitlement == "clone_monetization" and clone_id:
             from config import CLONE_MONETIZATION_DAYS
             await db.activate_monetization_subscription(clone_id, days=CLONE_MONETIZATION_DAYS)

@@ -15,13 +15,14 @@ callback_data conventions:
 """
 
 import logging
+from datetime import datetime, timedelta, timezone
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
 from database import db
 from paystack import paystack
-from config import EMOJI_COLORS, PREMIUM_GROUP_FEE_GHS, PREMIUM_GROUP_INVITE_LINK
+from config import EMOJI_COLORS, PREMIUM_GROUP_FEE_GHS, PREMIUM_GROUP_INVITE_LINK, PREMIUM_GROUP_CHAT_ID
 from utils import is_owner, safe_edit_message
 
 logger = logging.getLogger(__name__)
@@ -47,6 +48,75 @@ def premium_group_button(price_ghs: float = PREMIUM_GROUP_FEE_GHS) -> InlineKeyb
     )
 
 
+AZIGI_DOWNLOAD_CALLBACK = "azigi_download"
+
+
+def azigi_download_button() -> InlineKeyboardButton:
+    return InlineKeyboardButton("📥 Download Latest AZIGI", callback_data=AZIGI_DOWNLOAD_CALLBACK)
+
+
+async def show_azigi_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """callback_data == 'azigi_download' — the latest AZIGI release lives in
+    the Premium Group, so this screen leads straight into the join payment."""
+    price = await db.get_clone_price(_clone_id(context), "premium_group_fee")
+    text = (
+        "📥 **Download Latest AZIGI**\n\n"
+        "The latest AZIGI release is shared inside the Premium Group.\n\n"
+        f"Join for GHS {price:g} — once your payment is confirmed you'll be "
+        "added automatically with a private invite link."
+    )
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton(f"💎 Join Premium Group — GHS {price:g}", callback_data="premium_pay_init")],
+        [InlineKeyboardButton("⬅️ Back", callback_data="main_menu")],
+    ])
+    query = update.callback_query
+    if query:
+        await safe_edit_message(query, text, reply_markup=keyboard, parse_mode="Markdown")
+    else:
+        await update.effective_message.reply_text(text, reply_markup=keyboard, parse_mode="Markdown")
+
+
+async def create_premium_invite_link(bot, user_id: int) -> str:
+    """A single-use, 24h invite link when PREMIUM_GROUP_CHAT_ID is set (the
+    bot must be an admin there with 'Invite users' rights), so the paying user
+    joins instantly and the link can't be shared. Falls back to the static
+    PREMIUM_GROUP_INVITE_LINK."""
+    if PREMIUM_GROUP_CHAT_ID:
+        try:
+            link = await bot.create_chat_invite_link(
+                chat_id=int(PREMIUM_GROUP_CHAT_ID),
+                name=f"paid-{user_id}"[:32],
+                member_limit=1,
+                expire_date=datetime.now(timezone.utc) + timedelta(hours=24),
+            )
+            return link.invite_link
+        except Exception as e:
+            logger.error(f"[v0] Could not create premium invite link for {user_id}: {e}")
+    return PREMIUM_GROUP_INVITE_LINK
+
+
+async def deliver_premium_group_access(bot, user_id: int) -> bool:
+    """DM the paid user their personal join button. Used by every payment
+    completion path (admin approval, Selar webhook, owner bypass)."""
+    link = await create_premium_invite_link(bot, user_id)
+    if not link:
+        logger.warning("[v0] No PREMIUM_GROUP_CHAT_ID or PREMIUM_GROUP_INVITE_LINK set — can't auto-join paid user.")
+        await bot.send_message(
+            chat_id=user_id,
+            text="✅ Payment confirmed! An admin will add you to the Premium Group shortly.",
+        )
+        return False
+    await bot.send_message(
+        chat_id=user_id,
+        text=(
+            "✅ Payment confirmed! Welcome to the Premium Group.\n\n"
+            "Tap below to join — this link is just for you and works once."
+        ),
+        reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🔗 Join Premium Group", url=link)]]),
+    )
+    return True
+
+
 async def handle_premium_pay_init(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """callback_data == 'premium_pay_init' — works from any chat (DM, group,
     or channel comment), always follows up in the user's DM so payment
@@ -55,17 +125,17 @@ async def handle_premium_pay_init(update: Update, context: ContextTypes.DEFAULT_
     user = update.effective_user
 
     if is_owner(user.id, context):
-        if PREMIUM_GROUP_INVITE_LINK:
-            await safe_edit_message(query, 
+        link = await create_premium_invite_link(context.bot, user.id)
+        if link:
+            await safe_edit_message(query,
                 f"{EMOJI_COLORS.get('success', '✅')} Owner bypass — no payment needed.\n\n"
                 f"Tap below to join the Premium Group:",
-                parse_mode="Markdown",
                 reply_markup=InlineKeyboardMarkup([
-                    [InlineKeyboardButton("🔗 Join Premium Group", url=PREMIUM_GROUP_INVITE_LINK)]
+                    [InlineKeyboardButton("🔗 Join Premium Group", url=link)]
                 ])
             )
         else:
-            await query.answer("Owner bypass — but PREMIUM_GROUP_INVITE_LINK isn't set yet.", show_alert=True)
+            await query.answer("Owner bypass — but no premium group is configured yet.", show_alert=True)
         return
 
     clone_id = _clone_id(context)

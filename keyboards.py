@@ -33,6 +33,9 @@ class KeyboardGenerator:
         """
         keyboard = [
             [
+                InlineKeyboardButton("📥 Download Latest AZIGI", callback_data="azigi_download")
+            ],
+            [
                 InlineKeyboardButton("🤖 AI Chat", callback_data="tools_ai_info"),
                 InlineKeyboardButton("🛡️ Group Tools", callback_data="m_grouptools")
             ],
@@ -155,7 +158,7 @@ class KeyboardGenerator:
         keyboard = [
             [
                 InlineKeyboardButton("🤖 AI Chat", callback_data="tools_ai_info"),
-                InlineKeyboardButton("💹 Crypto/Stocks", callback_data="tools_market_info")
+                InlineKeyboardButton("📈 Stocks", callback_data="tools_market_info")
             ],
             [
                 InlineKeyboardButton("📰 News", callback_data="tools_news_info")

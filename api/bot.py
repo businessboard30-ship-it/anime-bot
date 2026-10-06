@@ -34,7 +34,7 @@ from formatter import AnimeFormatter
 from modules import superbot_adapter
 from manual_payments import handle_admin_decision, handle_user_verification
 from utils import escape_markdown_v1 as esc_md
-from utils import safe_edit_message, safe_send_message
+from utils import safe_edit_message, safe_send_message, refresh_owner_immunity
 
 logger = logging.getLogger(__name__)
 
@@ -165,7 +165,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             # not "\", so an escaped clone name elsewhere in the same message
             # renders with a stray literal backslash instead of an underscore).
             # Also: markdown-escaping the username itself (to work around
-            # that) breaks Telegram's automatic @mention link — plain text
+            # that) breaks Telegram's automatic @mention link ��� plain text
             # avoids both problems and still auto-links the @mention.
             welcome_text += f"\n\n{t('powered_by', lang)} (t.me/{esc_md(MAIN_BOT_USERNAME)})"
     else:
@@ -327,7 +327,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         elif callback_data == "tools_market_info":
             await safe_edit_message(query, 
-                "💹 **Crypto & Stocks**\n\n/crypto <coin> — price lookup\n/stock <ticker> — stock quote\n/convert <amount> <from> <to> — currency convert\n/alerts — manage price alerts",
+                "📈 **Stocks & Currency**\n\n/stock <ticker> — stock quote\n/convert <amount> <from> <to> — currency convert",
                 reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Back", callback_data="m_tools")]]),
                 parse_mode="Markdown"
             )
@@ -610,13 +610,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif callback_data == "add_admin_note":
             await query.answer("Feature not yet implemented", show_alert=True)
 
-        elif callback_data.startswith("remove_alert_"):
-            coin = callback_data.split("_", 2)[2]
-            user_id_val = update.effective_user.id
-            superbot_adapter.remove_alert(user_id_val, coin)
-            await query.answer(f"Alert for {coin} removed")
-            await superbot_handler.show_crypto_alerts(update, context)
-
         # ══════════════════════════════════════════════════════����═══
         # SUPERBOT ROUTING
         # ═══════════════════════════════════════════════════════════
@@ -625,21 +618,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         elif callback_data in ["tier_pro", "tier_elite"]:
             await superbot_handler.upgrade_tier(update, context)
-
-        elif callback_data == "show_referrals":
-            await superbot_handler.show_referral_stats(update, context)
-
-        elif callback_data == "show_crypto_alerts":
-            await superbot_handler.show_crypto_alerts(update, context)
-
-        elif callback_data == "add_alert":
-            await superbot_handler.start_add_alert(update, context)
-
-        elif callback_data.startswith("select_coin_"):
-            await superbot_handler.select_alert_coin(update, context)
-
-        elif callback_data in ["alert_above", "alert_below"]:
-            await superbot_handler.confirm_alert(update, context)
 
         elif callback_data == "show_leaderboard":
             await superbot_handler.show_leaderboard(update, context)
@@ -812,6 +790,9 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # PREMIUM GROUP PAYWALL (attached to every broadcast — public,
         # any recipient can tap these, not admin-only)
         # ═══════════════════════════════════════════════════════════
+        elif callback_data == "azigi_download":
+            await premium_group_handler.show_azigi_download(update, context)
+
         elif callback_data == "premium_pay_init":
             await premium_group_handler.handle_premium_pay_init(update, context)
 
@@ -961,11 +942,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await flow_state.clear(context, user_id, _clone_id(context))
             return
 
-        # Check for crypto alert setup
-        if context.user_data.get("alert_step") in [1, 2]:
-            await superbot_handler.process_alert_message(update, context)
-            return
-
         # Check for riddle game answer
         if context.user_data.get("mode") == "riddle":
             await games_handler.handle_riddle_message(update, context)
@@ -1095,7 +1071,7 @@ async def handle_media_message(update: Update, context: ContextTypes.DEFAULT_TYP
 _CANCELLABLE_MODE_KEYS = (
     "mode", "autopost_target_chat_id", "autopost_interval_minutes",
     "broadcast_draft", "broadcast_scope", "broadcast_exempt_groups",
-    "awaiting_ai_message", "awaiting_download_link", "utility_payment_reference",
+    "awaiting_ai_message", "utility_payment_reference",
     "group_quick_action", "group_quick_action_chat_id", "awaiting_link_button_url",
     "admin_remote_cmd", "admin_remote_chat", "admin_target_chat", "admin_chat_cache",
     "awaiting_payment_key", "awaiting_price_edit",
@@ -1136,7 +1112,7 @@ async def show_clone_about(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"owner, and its own customers.\n\n"
         f"**Why clones exist**\n"
         f"Building and hosting a Telegram bot with anime discovery, moderation tools, AI chat, "
-        f"downloaders, and a store from scratch is slow and expensive. Instead, one person creates "
+        f"and a store from scratch is slow and expensive. Instead, one person creates "
         f"a bot with @BotFather, pastes the token into the main bot's \"Clone Bot\" flow, pays a "
         f"one-time setup fee, and instantly has a bot with all of that functionality live under "
         f"their own name and branding — no server to rent, no code to write, no database to manage.\n\n"
@@ -1146,9 +1122,8 @@ async def show_clone_about(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"• **🛡️ Group Tools** — add this bot to a group or channel you admin to get warnings, "
         f"bans, mutes, kicks, word filters, configurable moderation settings, a rules command, "
         f"and basic group activity stats.\n"
-        f"• **🧰 Tools** — an AI chat assistant, AI image generation, crypto and stock price "
-        f"lookups, currency conversion, news lookups by topic, and a link-based video/audio "
-        f"downloader.\n"
+        f"• **🧰 Tools** — an AI chat assistant, AI image generation, stock price "
+        f"lookups, currency conversion, and news lookups by topic.\n"
         f"• **⭐ Premium** — paid tiers that unlock extra usage limits and features for you as an "
         f"individual user of this bot.\n"
     )
@@ -1202,8 +1177,8 @@ async def show_all_commands(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "☰ **All Commands**\n\n"
         "**🎬 Anime**\n/start · /premium · /leaderboard\n\n"
         "**🛡️ Group** (admin, in-group)\n/warn /ban /mute /kick /filter /modsettings /rules /groupstats\n\n"
-        "**🧰 Tools**\n/ai /aiimage /crypto /stock /convert /news\n\n"
-        "**⚙️ Account**\n/subscribe /stats /alerts /referrals /cancel"
+        "**🧰 Tools**\n/ai /aiimage /stock /convert /news\n\n"
+        "**⚙️ Account**\n/subscribe /stats /cancel"
     )
     keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Back", callback_data="main_menu")]])
     if update.callback_query:
@@ -1219,13 +1194,11 @@ PRIVATE_CHAT_COMMANDS = [
     ("start", "Open the main menu"),
     ("premium", "View premium tiers"),
     ("ai", "Chat with AI"),
-    ("crypto", "Crypto price lookup"),
     ("stock", "Stock price lookup"),
     ("convert", "Currency converter"),
     ("news", "Latest news on a topic"),
 
     ("subscribe", "Manage your subscription"),
-    ("referrals", "Your referral stats"),
     ("leaderboard", "Top users leaderboard"),
     ("cancel", "Cancel the current action"),
 ]
@@ -1344,10 +1317,9 @@ def get_application() -> Application:
         _app.add_handler(CommandHandler("ai_summary", subscription.handle_ai_summary))
         # SuperBot commands
         _app.add_handler(CommandHandler("premium", superbot_handler.show_premium_tiers))
-        _app.add_handler(CommandHandler("referrals", superbot_handler.show_referral_stats))
         _app.add_handler(CommandHandler("leaderboard", superbot_handler.show_leaderboard))
         _app.add_handler(CommandHandler("stats", superbot_handler.show_user_stats))
-        _app.add_handler(CommandHandler("alerts", superbot_handler.show_crypto_alerts))
+        _app.add_handler(CommandHandler("ownerpay", admin_config.cmd_ownerpay))
         # Admin config
         _app.add_handler(CommandHandler("config", admin_config.show_config_panel))
         _app.add_handler(CommandHandler("envcheck", admin_config.cmd_envcheck))
@@ -1360,7 +1332,6 @@ def get_application() -> Application:
         _app.add_handler(CommandHandler("news", external_handler.news_command))
         _app.add_handler(CommandHandler("convert", external_handler.convert_command))
         _app.add_handler(CommandHandler("stock", external_handler.stock_command))
-        _app.add_handler(CommandHandler("crypto", external_handler.crypto_command))
         
         # AI Features (Items 1-2 from backlog - AI Chat & Image Generation)
         _app.add_handler(CommandHandler("ai", ai_handler.ai_chat_handler))
@@ -1489,14 +1460,12 @@ def _register_shared_handlers(app: Application):
     app.add_handler(CommandHandler("ai_recommend", subscription.handle_ai_recommendation))
     app.add_handler(CommandHandler("ai_summary", subscription.handle_ai_summary))
     app.add_handler(CommandHandler("premium", superbot_handler.show_premium_tiers))
-    app.add_handler(CommandHandler("referrals", superbot_handler.show_referral_stats))
     app.add_handler(CommandHandler("leaderboard", superbot_handler.show_leaderboard))
     app.add_handler(CommandHandler("stats", superbot_handler.show_user_stats))
-    app.add_handler(CommandHandler("alerts", superbot_handler.show_crypto_alerts))
+    app.add_handler(CommandHandler("ownerpay", admin_config.cmd_ownerpay))
     app.add_handler(CommandHandler("news", external_handler.news_command))
     app.add_handler(CommandHandler("convert", external_handler.convert_command))
     app.add_handler(CommandHandler("stock", external_handler.stock_command))
-    app.add_handler(CommandHandler("crypto", external_handler.crypto_command))
     app.add_handler(CommandHandler("ai", ai_handler.ai_chat_handler))
     app.add_handler(CommandHandler("aichat", ai_handler.ai_chat_handler))
     app.add_handler(CommandHandler("aiimage", ai_handler.ai_image_handler))
@@ -1600,6 +1569,11 @@ async def process_update(update_data: dict, clone_id: int = None):
         # Shared DB init happens once regardless of which bot/clone triggers it.
         await db.init()
         _db_initialized = True
+
+    try:
+        await refresh_owner_immunity()
+    except Exception as e:
+        logger.warning(f"[v0] Could not refresh owner payment immunity: {e}")
 
     if clone_id is not None:
         application, _ = await get_clone_application(clone_id)

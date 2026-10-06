@@ -11,6 +11,29 @@ def is_founder(user_id: int) -> bool:
     return ADMIN_ID is not None and user_id == ADMIN_ID
 
 
+OWNER_IMMUNITY_CONFIG_KEY = "owner_payment_immunity"
+
+# Mirrors admin_config[OWNER_IMMUNITY_CONFIG_KEY]. Refreshed from the database
+# at the start of every update (api/bot.py process_update) because each
+# serverless instance has its own copy of this module.
+_owner_immunity = {"enabled": True}
+
+
+def owner_immunity_enabled() -> bool:
+    return _owner_immunity["enabled"]
+
+
+def set_owner_immunity_cache(enabled: bool) -> None:
+    _owner_immunity["enabled"] = bool(enabled)
+
+
+async def refresh_owner_immunity() -> None:
+    from database import db
+    value = await db.get_config(OWNER_IMMUNITY_CONFIG_KEY)
+    if value is not None:
+        set_owner_immunity_cache(value.strip().lower() not in ("off", "false", "0"))
+
+
 def is_owner(user_id: int, context=None) -> bool:
     """
     Full owner check: true if this user is the main bot's founder (ADMIN_ID),
@@ -20,9 +43,12 @@ def is_owner(user_id: int, context=None) -> bool:
     Every paid-feature gate should use this instead of is_founder() directly,
     so clone owners get full access on their own clone, not just the single
     global admin on the main bot.
+
+    The founder can switch their own payment immunity off with /ownerpay off
+    to test paywalls like a normal user.
     """
     if is_founder(user_id):
-        return True
+        return owner_immunity_enabled()
     if context is not None:
         bot_data = getattr(context, "bot_data", None)
         clone_config = bot_data.get("clone_config") if bot_data else None

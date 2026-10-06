@@ -315,6 +315,36 @@ async def log_event(bot, message: str):
         print(f"[v0] log_event failed: {e}")
 
 
+async def cmd_ownerpay(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Founder-only: toggle the owner's payment immunity.
+    Usage: /ownerpay on | off   (no argument shows the current state)
+    'off' makes every paywall treat the founder like a normal user, so the
+    payment flows can be tested end to end."""
+    from utils import OWNER_IMMUNITY_CONFIG_KEY, owner_immunity_enabled, set_owner_immunity_cache
+
+    if update.effective_user.id != ADMIN_ID:
+        return
+
+    arg = context.args[0].strip().lower() if context.args else ""
+    if arg not in ("on", "off"):
+        state = "ON — you skip all payments" if owner_immunity_enabled() else "OFF — you pay like a normal user"
+        await update.message.reply_text(
+            f"Owner payment immunity is currently {state}.\n\n"
+            "Usage: /ownerpay on  or  /ownerpay off"
+        )
+        return
+
+    enabled = arg == "on"
+    if not await db.update_config(OWNER_IMMUNITY_CONFIG_KEY, "on" if enabled else "off"):
+        await update.message.reply_text(f"{EMOJI_COLORS.get('error', '❌')} Couldn't save the setting. Try again.")
+        return
+    set_owner_immunity_cache(enabled)
+    await update.message.reply_text(
+        f"{EMOJI_COLORS.get('success', '✅')} Owner payment immunity turned "
+        + ("ON — paywalls are bypassed for you again." if enabled else "OFF — you'll now see and pay every paywall like a normal user.")
+    )
+
+
 async def cmd_setpremium(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Admin-only: directly grants BotStore Premium to a user ID, with no
     payment record required. Use this for the account owner, manual/offline
