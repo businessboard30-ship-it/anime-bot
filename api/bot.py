@@ -317,7 +317,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         elif callback_data == "m_tools":
             await safe_edit_message(query, 
-                "🧰 **Tools**\n\nAI, market data, downloads, games, and more.",
+                "🧰 **Tools**\n\nAI, market data, games, and more.",
                 reply_markup=keyboard_gen.tools_menu(),
                 parse_mode="Markdown"
             )
@@ -360,18 +360,10 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif callback_data == "verify_utility_sub":
             await utility_paywall.handle_verify(update, context)
 
-        elif callback_data == "dl_format_audio":
-            await external_handler.handle_download_format_choice(update, context, "audio")
-
-        elif callback_data == "dl_format_video":
-            await external_handler.handle_download_format_choice(update, context, "video")
-
         elif callback_data == "cancel_waiting_mode":
             context.user_data.pop("awaiting_ai_message", None)
-            context.user_data.pop("awaiting_download_link", None)
-            context.user_data.pop("pending_download_url", None)
             await safe_edit_message(query, 
-                "🧰 **Tools**\n\nAI, market data, downloads, games, and more.",
+                "🧰 **Tools**\n\nAI, market data, games, and more.",
                 reply_markup=keyboard_gen.tools_menu(),
                 parse_mode="Markdown"
             )
@@ -863,10 +855,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # if context.user_data already has flow state (warm-instance path).
         await flow_state.hydrate(context, user_id, _clone_id(context))
 
-        # Download waiting mode: next plain-text message is treated as the link
-        if context.user_data.get("awaiting_download_link"):
-            await external_handler.handle_download_waiting_message(update, context)
-            return
 
         # Group Tools quick action (Warn/Mute/Ban tap-then-reply flow)
         if context.user_data.get("group_quick_action"):
@@ -1061,7 +1049,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await superbot_handler.show_leaderboard(update, context)
         elif "🧰" in text or text.lower().startswith("tools"):
             await update.message.reply_text(
-                "🧰 **Tools**\n\nAI, market data, downloads, games, and more.",
+                "🧰 **Tools**\n\nAI, market data, games, and more.",
                 reply_markup=keyboard_gen.tools_menu(),
                 parse_mode="Markdown"
             )
@@ -1088,9 +1076,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle_media_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Routes photo/video/document/animation messages to whichever mode-based
-    flow is waiting for media content (autopost setup, broadcast setup).
-    A bare photo with no such mode active goes to Reverse Image Search
-    instead of being silently ignored."""
+    flow is waiting for media content (autopost setup, broadcast setup)."""
     try:
         await flow_state.hydrate(context, update.effective_user.id, _clone_id(context))
         mode = context.user_data.get("mode")
@@ -1100,15 +1086,7 @@ async def handle_media_message(update: Update, context: ContextTypes.DEFAULT_TYP
             await broadcast_handler.handle_broadcast_content(update, context)
         elif mode == "broadcast_await_joinlink":
             await update.message.reply_text("Send the invite link as text (or /skip) — not a photo/video/file.")
-        elif update.message.photo:
-            if update.effective_chat.type != "private":
-                # Never auto-run reverse image search on photos posted in
-                # groups/channels — only when a user sends a photo directly
-                # to the bot. Doing this unprompted in a group silently
-                # reverse-searches other people's posts, which is a privacy
-                # problem regardless of intent.
-                return
-            await image_search_handler.handle_photo_message(update, context)
+
     except Exception as e:
         print(f"[v0] Error in handle_media_message: {e}")
         notify_admin_of_error(f"Media handler error: {e}")
@@ -1224,7 +1202,7 @@ async def show_all_commands(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "☰ **All Commands**\n\n"
         "**🎬 Anime**\n/start · /premium · /leaderboard\n\n"
         "**🛡️ Group** (admin, in-group)\n/warn /ban /mute /kick /filter /modsettings /rules /groupstats\n\n"
-        "**🧰 Tools**\n/ai /aiimage /crypto /stock /convert /news /download\n\n"
+        "**🧰 Tools**\n/ai /aiimage /crypto /stock /convert /news\n\n"
         "**⚙️ Account**\n/subscribe /stats /alerts /referrals /cancel"
     )
     keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Back", callback_data="main_menu")]])
@@ -1245,7 +1223,7 @@ PRIVATE_CHAT_COMMANDS = [
     ("stock", "Stock price lookup"),
     ("convert", "Currency converter"),
     ("news", "Latest news on a topic"),
-    ("download", "Download video/audio from a link"),
+
     ("subscribe", "Manage your subscription"),
     ("referrals", "Your referral stats"),
     ("leaderboard", "Top users leaderboard"),
@@ -1382,7 +1360,6 @@ def get_application() -> Application:
         _app.add_handler(CommandHandler("news", external_handler.news_command))
         _app.add_handler(CommandHandler("convert", external_handler.convert_command))
         _app.add_handler(CommandHandler("stock", external_handler.stock_command))
-        _app.add_handler(CommandHandler("download", external_handler.download_command))
         _app.add_handler(CommandHandler("crypto", external_handler.crypto_command))
         
         # AI Features (Items 1-2 from backlog - AI Chat & Image Generation)
@@ -1519,7 +1496,6 @@ def _register_shared_handlers(app: Application):
     app.add_handler(CommandHandler("news", external_handler.news_command))
     app.add_handler(CommandHandler("convert", external_handler.convert_command))
     app.add_handler(CommandHandler("stock", external_handler.stock_command))
-    app.add_handler(CommandHandler("download", external_handler.download_command))
     app.add_handler(CommandHandler("crypto", external_handler.crypto_command))
     app.add_handler(CommandHandler("ai", ai_handler.ai_chat_handler))
     app.add_handler(CommandHandler("aichat", ai_handler.ai_chat_handler))
