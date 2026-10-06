@@ -1326,6 +1326,8 @@ def get_application() -> Application:
         _app.post_init = startup
         _app.add_handler(CommandHandler("start", start))
         _app.add_handler(CommandHandler("azigi", premium_group_handler.show_azigi_download))
+        _app.add_handler(CommandHandler("addazigi", premium_group_handler.add_azigi_command))
+        _app.add_handler(CommandHandler("listazigi", premium_group_handler.list_azigi_command))
         _app.add_handler(CommandHandler("admin", admin_panel.admin_command))
         from handlers import subscription
         _app.add_handler(CommandHandler("subscribe", subscription.handle_subscribe_ai))
@@ -1437,6 +1439,7 @@ def get_application() -> Application:
         # Media content capture for autopost/broadcast setup (a group admin or
         # the bot owner sending a photo/video/document/animation as the thing
         # to repeat/broadcast, after /setrecurring or /broadcast)
+        _app.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, premium_group_handler.save_azigi_photo, block=False))
         _app.add_handler(MessageHandler(
             (filters.PHOTO | filters.VIDEO | filters.Document.ALL | filters.ANIMATION) & ~filters.COMMAND,
             handle_media_message
@@ -1470,6 +1473,8 @@ def _register_shared_handlers(app: Application):
     """
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("azigi", premium_group_handler.show_azigi_download))
+    app.add_handler(CommandHandler("addazigi", premium_group_handler.add_azigi_command))
+    app.add_handler(CommandHandler("listazigi", premium_group_handler.list_azigi_command))
     app.add_handler(CommandHandler("language", language_handler.language_command))
     app.add_handler(CommandHandler("admin", admin_panel.admin_command))
     from handlers import subscription
@@ -1501,6 +1506,7 @@ def _register_shared_handlers(app: Application):
     # See comment on the clone-app registration above: /skip needs its own
     # CommandHandler because filters.TEXT & ~filters.COMMAND drops it.
     app.add_handler(CommandHandler("skip", handle_message))
+    app.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, premium_group_handler.save_azigi_photo, block=False))
     app.add_handler(CallbackQueryHandler(handle_callback))
 
     # Auto-DM on Join Request (feature: autodmjoin) — same as the main bot,

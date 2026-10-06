@@ -14,6 +14,7 @@ callback_data conventions:
   premium_pay_verify  -> verify + hand over the invite link
 """
 
+import json
 import logging
 from datetime import datetime, timedelta, timezone
 
@@ -22,7 +23,7 @@ from telegram.ext import ContextTypes
 
 from database import db
 from paystack import paystack
-from config import EMOJI_COLORS, PREMIUM_GROUP_FEE_GHS, PREMIUM_GROUP_INVITE_LINK, PREMIUM_GROUP_CHAT_ID
+from config import ADMIN_ID, EMOJI_COLORS, PREMIUM_GROUP_FEE_GHS, PREMIUM_GROUP_INVITE_LINK, PREMIUM_GROUP_CHAT_ID
 from utils import is_owner, safe_edit_message
 
 logger = logging.getLogger(__name__)
@@ -49,31 +50,77 @@ def premium_group_button(price_ghs: float = PREMIUM_GROUP_FEE_GHS) -> InlineKeyb
 
 
 AZIGI_DOWNLOAD_CALLBACK = "azigi_download"
+AZIGI_LISTINGS_KEY = "azigi_listings"
 
 
 def azigi_download_button() -> InlineKeyboardButton:
     return InlineKeyboardButton("📥 Download Latest AZIGI", callback_data=AZIGI_DOWNLOAD_CALLBACK)
 
 
-async def show_azigi_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """callback_data == 'azigi_download' — the latest AZIGI release lives in
-    the Premium Group, so this screen leads straight into the join payment."""
-    price = await db.get_clone_price(_clone_id(context), "premium_group_fee")
-    text = (
-        "📥 **Download Latest AZIGI**\n\n"
-        "The latest AZIGI release is shared inside the Premium Group.\n\n"
-        f"Join for GHS {price:g} — once your payment is confirmed you'll be "
-        "added automatically with a private invite link."
+async def _get_azigi_listings() -> list:
+    raw = await db.get_config(AZIGI_LISTINGS_KEY)
+    if not raw:
+        return []
+    try:
+        value = json.loads(raw)
+        return value if isinstance(value, list) else []
+    except (TypeError, ValueError):
+        return []
+
+
+async def add_azigi_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Admin wizard: /addazigi, then send a photo with its title as caption."""
+    if update.effective_user.id != ADMIN_ID:
+        return
+    context.user_data["awaiting_azigi_photo"] = True
+    await update.message.reply_text(
+        "Send the AZIGI image now. Put the listing title in the photo caption.\n"
+        "Example: AZIGI v3.2 — Latest release"
     )
-    keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton(f"💎 Join Premium Group — GHS {price:g}", callback_data="premium_pay_init")],
-        [InlineKeyboardButton("⬅️ Back", callback_data="main_menu")],
-    ])
+
+
+async def save_azigi_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID:
+        return
+    if not context.user_data.get("awaiting_azigi_photo") or not update.message.photo:
+        return
+    title = (update.message.caption or "").strip()
+    if not title:
+        await update.message.reply_text("Please resend the image with the AZIGI title in the caption.")
+        return
+    listings = await _get_azigi_listings()
+    listings.insert(0, {"file_id": update.message.photo[-1].file_id, "title": title[:200]})
+    saved = await db.update_config(AZIGI_LISTINGS_KEY, json.dumps(listings[:30]))
+    context.user_data.pop("awaiting_azigi_photo", None)
+    await update.message.reply_text("AZIGI listing saved." if saved else "AZIGI listing saved in memory only.")
+
+
+async def list_azigi_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID:
+        return
+    listings = await _get_azigi_listings()
+    await update.message.reply_text("\n".join(f"{i}. {item['title']}" for i, item in enumerate(listings, 1)) or "No AZIGI listings yet.")
+
+
+async def show_azigi_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show every admin-listed AZIGI release; every item is protected by the group join payment."""
+    price = await db.get_clone_price(_clone_id(context), "premium_group_fee")
+    listings = await _get_azigi_listings()
     query = update.callback_query
     if query:
-        await safe_edit_message(query, text, reply_markup=keyboard, parse_mode="Markdown")
+        await safe_edit_message(query, "📥 **AZIGI Downloads**\n\nChoose a release below. Join the Premium Group to download.", parse_mode="Markdown")
+        target = update.effective_chat.id
     else:
-        await update.effective_message.reply_text(text, reply_markup=keyboard, parse_mode="Markdown")
+        target = update.effective_chat.id
+        await update.message.reply_text("📥 **AZIGI Downloads**\n\nChoose a release below. Join the Premium Group to download.", parse_mode="Markdown")
+    if not listings:
+        await context.bot.send_message(target, "No AZIGI releases have been listed yet.")
+        return
+    for item in listings:
+        await context.bot.send_photo(
+            target, item["file_id"], caption=item["title"],
+            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton(f"💎 Join Premium Group — GHS {price:g}", callback_data="premium_pay_init")]])
+        )
 
 
 async def create_premium_invite_link(bot, user_id: int) -> str:
