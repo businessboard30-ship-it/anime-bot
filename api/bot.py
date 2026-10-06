@@ -88,6 +88,28 @@ def notify_admin_of_error(error_text: str):
         pass  # never let error reporting itself crash the handler
 
 
+def notify_admin_of_callback(callback_data: str, user_id: int, chat_id: int, status: str):
+    """Send callback activity to the admin's Telegram DM for button debugging."""
+    try:
+        if ADMIN_ID:
+            requests.post(
+                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                json={
+                    "chat_id": ADMIN_ID,
+                    "text": (
+                        "🔘 Button callback\n"
+                        f"action: {callback_data[:300]}\n"
+                        f"user: {user_id}\n"
+                        f"chat: {chat_id}\n"
+                        f"status: {status}"
+                    )
+                },
+                timeout=5,
+            )
+    except Exception:
+        pass  # never let diagnostics break a Telegram update
+
+
 def _clone_id(context) -> int:
     """0 for the main bot, else the running clone's id — tier, quota, and
     language lookups must be scoped to this so they never leak across the
@@ -181,6 +203,8 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     callback_data = query.data
     user_id = update.effective_user.id
+    chat_id = update.effective_chat.id if update.effective_chat else user_id
+    notify_admin_of_callback(callback_data, user_id, chat_id, "received")
 
     # A Telegram callback stays in a loading state until it is acknowledged.
     # A database hiccup must not make every menu button look dead.
@@ -802,6 +826,8 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await safe_edit_message(query, "Option not yet implemented.")
 
+        notify_admin_of_callback(callback_data, user_id, chat_id, "handled")
+
     except BadRequest as e:
         # Telegram's harmless "nothing actually changed" error — thrown by any
         # of the ~150 raw query.edit_message_text/edit_message_caption call
@@ -812,9 +838,13 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # of needing every call site individually wrapped.
         if "message is not modified" not in str(e).lower():
             print(f"[v0] Error in handle_callback: {e}")
+            notify_admin_of_callback(callback_data, user_id, chat_id, f"failed: {e}")
             notify_admin_of_error(f"Callback error: {e}")
+        else:
+            notify_admin_of_callback(callback_data, user_id, chat_id, "handled: message unchanged")
     except Exception as e:
         logger.exception("[v0] Error in handle_callback: %s", e)
+        notify_admin_of_callback(callback_data, user_id, chat_id, f"failed: {e}")
         notify_admin_of_error(f"Callback error: {e}")
         try:
             await query.answer("That action failed. Please try again.", show_alert=True)
