@@ -41,9 +41,6 @@ FLOW_KEYS = (
     # (e.g. "addbot", "botmgr_setname_<id>") so no extra keys needed here.
     # ads marketplace / listings (handlers/ads_marketplace_handler.py)
     "market_draft", "ad_draft",
-    # botstore (handlers/botstore_handler.py)
-    "botstore_mode", "listing_title", "listing_desc", "listing_identifier",
-    "listing_type", "submit_step",
     # games (handlers/games_handler.py)
     "trivia", "riddle_ans", "guess_num", "guess_tries",
     # crypto alerts (handlers/superbot_handler.py)

@@ -579,15 +579,6 @@ class KeyboardGenerator:
         return InlineKeyboardMarkup(keyboard)
     
     @staticmethod
-    def botstore_premium_verify_keyboard() -> InlineKeyboardMarkup:
-        """Keyboard for verifying BotStore premium payment"""
-        keyboard = [
-            [InlineKeyboardButton("✅ I've Paid — Verify", callback_data="verify_botstore_premium")],
-            [InlineKeyboardButton("❌ Cancel", callback_data="botstore_home")]
-        ]
-        return InlineKeyboardMarkup(keyboard)
-
-    @staticmethod
     def clone_verify_keyboard() -> InlineKeyboardMarkup:
         """Keyboard for verifying clone payment"""
         keyboard = [

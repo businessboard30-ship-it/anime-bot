@@ -215,8 +215,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         # Cold-start recovery, same as handle_message (see flow_state.py) —
-        # callback taps (e.g. confirming a webhook overwrite, picking a
-        # BotStore category) can equally land on a fresh instance. Hydration is
+        # Callback taps can equally land on a fresh instance. Hydration is
         # best-effort here so navigation still works when the flow-state store
         # is temporarily unavailable.
         try:
@@ -973,16 +972,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await flow_state.clear(context, user_id, _clone_id(context))
             return
 
-        # Check for BotStore submission
-        if context.user_data.get("botstore_mode") == "submit_type":
-            await botstore_handler.handle_botstore_message(update, context)
-            return
-
-        # Check for BotStore search
-        if context.user_data.get("botstore_mode") == "search":
-            await botstore_handler.handle_botstore_message(update, context)
-            return
-
         # Check for crypto alert setup
         if context.user_data.get("alert_step") in [1, 2]:
             await superbot_handler.process_alert_message(update, context)
@@ -1181,7 +1170,6 @@ async def show_clone_about(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"• **🧰 Tools** — an AI chat assistant, AI image generation, crypto and stock price "
         f"lookups, currency conversion, news lookups by topic, and a link-based video/audio "
         f"downloader.\n"
-        f"• **🏪 BotStore** — browse other bots, groups, and channels listed inside this network.\n"
         f"• **⭐ Premium** — paid tiers that unlock extra usage limits and features for you as an "
         f"individual user of this bot.\n"
     )
@@ -1233,7 +1221,7 @@ async def show_all_commands(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     text = (
         "☰ **All Commands**\n\n"
-        "**🎬 Anime**\n/start · /botstore · /premium · /leaderboard\n\n"
+        "**🎬 Anime**\n/start · /premium · /leaderboard\n\n"
         "**🛡️ Group** (admin, in-group)\n/warn /ban /mute /kick /filter /modsettings /rules /groupstats\n\n"
         "**🧰 Tools**\n/ai /aiimage /crypto /stock /convert /news /download\n\n"
         "**⚙️ Account**\n/subscribe /stats /alerts /referrals /cancel"
@@ -1250,7 +1238,7 @@ async def show_all_commands(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # button" Telegram provides; set_my_commands populates it).
 PRIVATE_CHAT_COMMANDS = [
     ("start", "Open the main menu"),
-    ("botstore", "Browse the bot/group/channel store"),
+
     ("premium", "View premium tiers"),
     ("ai", "Chat with AI"),
     ("crypto", "Crypto price lookup"),
@@ -1376,8 +1364,7 @@ def get_application() -> Application:
         _app.add_handler(CommandHandler("subscribe", subscription.handle_subscribe_ai))
         _app.add_handler(CommandHandler("ai_recommend", subscription.handle_ai_recommendation))
         _app.add_handler(CommandHandler("ai_summary", subscription.handle_ai_summary))
-        # BotStore commands
-        _app.add_handler(CommandHandler("botstore", botstore_handler.show_botstore_home))
+
         # SuperBot commands
         _app.add_handler(CommandHandler("premium", superbot_handler.show_premium_tiers))
         _app.add_handler(CommandHandler("referrals", superbot_handler.show_referral_stats))
@@ -1525,7 +1512,6 @@ def _register_shared_handlers(app: Application):
     app.add_handler(CommandHandler("subscribe", subscription.handle_subscribe_ai))
     app.add_handler(CommandHandler("ai_recommend", subscription.handle_ai_recommendation))
     app.add_handler(CommandHandler("ai_summary", subscription.handle_ai_summary))
-    app.add_handler(CommandHandler("botstore", botstore_handler.show_botstore_home))
     app.add_handler(CommandHandler("premium", superbot_handler.show_premium_tiers))
     app.add_handler(CommandHandler("referrals", superbot_handler.show_referral_stats))
     app.add_handler(CommandHandler("leaderboard", superbot_handler.show_leaderboard))
