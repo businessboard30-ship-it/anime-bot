@@ -44,7 +44,7 @@ async def handle_subscribe_ai(update: Update, context: ContextTypes.DEFAULT_TYPE
     price = await db.get_clone_price(_clone_id(context), "ai_subscription")
 
     keyboard = [
-        [InlineKeyboardButton(f"📲 Pay with Selar ({price:g} GHS/month)", callback_data="pay_paystack_ai")],
+        [InlineKeyboardButton(f"📲 Pay with Paystack ({price:g} GHS/month)", callback_data="pay_paystack_ai")],
         [InlineKeyboardButton("❌ Nah, I'm good", callback_data="main_menu")]
     ]
     

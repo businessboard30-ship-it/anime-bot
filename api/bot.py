@@ -19,13 +19,12 @@ from database import db
 import flow_state
 from keyboards import keyboard_gen
 from handlers import discover, search, submit, admin_panel, clone_bot, admin_config, admin_remote
-from handlers import botstore_handler, superbot_handler, feature_handlers, external_handler, ai_handler, games_handler, bot_manager_handler
+from handlers import superbot_handler, feature_handlers, external_handler, ai_handler, games_handler, bot_manager_handler
 from handlers import moderation
 from handlers import autopost_handler, broadcast_handler
 from handlers import ads_marketplace_handler
 from handlers import admin_tools
 from handlers import utility_paywall
-from handlers import image_search_handler
 from handlers import welcome_pay
 from handlers import link_buttons
 from handlers import language_handler
@@ -193,7 +192,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await handle_admin_decision(update, context)
         elif (callback_data.startswith("welcome_pay_verify_") or callback_data in {
             "verify_utility_sub", "verify_tier_payment", "premium_pay_verify",
-            "imgsearch_verify", "imgsearch_yandex_verify", "verify_botstore_premium",
             "verify_subscription",
         }):
             await handle_user_verification(update, context, callback_data)
@@ -201,13 +199,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Main navigation
         elif callback_data == "main_menu":
             await show_main_menu(update, context)
-
-        elif callback_data == "m_anime":
-            await safe_edit_message(query, 
-                "🎬 **Anime**\n\nDiscover, search, and submit anime.",
-                reply_markup=keyboard_gen.anime_menu(),
-                parse_mode="Markdown"
-            )
 
         elif callback_data == "m_grouptools":
             is_group = update.effective_chat.type in ("group", "supergroup")
@@ -311,31 +302,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Back", callback_data="m_tools")]]),
                 parse_mode="Markdown"
             )
-
-        elif callback_data == "tools_download_info":
-            await external_handler.start_download_waiting(update, context)
-
-        elif callback_data == "tools_imgsearch_info":
-            await safe_edit_message(
-                query,
-                "🔍 **Reverse Image Search**\n\nJust send a photo — no command needed. "
-                "You'll see match previews right away; the first source-link reveal is free, "
-                "then it's GHS 10 per unlock.",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⬅️ Back", callback_data="m_tools")]]),
-                parse_mode="Markdown"
-            )
-
-        elif callback_data == "imgsearch_free_unlock":
-            await image_search_handler.handle_free_unlock(update, context)
-
-        elif callback_data == "imgsearch_pay":
-            await image_search_handler.handle_pay_unlock(update, context)
-
-        elif callback_data == "imgsearch_yandex_subscribe":
-            await image_search_handler.handle_yandex_subscribe(update, context)
-
-        elif callback_data == "imgsearch_yandex_cancel":
-            await image_search_handler.handle_yandex_cancel(update, context)
 
         elif callback_data.startswith("lang_set_"):
             await language_handler.language_callback(update, context)
@@ -518,9 +484,9 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await clone_bot.handle_webhook_overwrite_confirmation(update, context)
 
         # Subscription/AI
-        elif callback_data == "pay_selar_ai":
+        elif callback_data == "pay_paystack_ai":
             from handlers import subscription
-            await subscription.handle_pay_selar_ai(update, context)
+            await subscription.handle_pay_paystack_ai(update, context)
         
         # Admin panel
         elif callback_data == "admin_panel":
@@ -616,47 +582,6 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif callback_data == "add_admin_note":
             await query.answer("Feature not yet implemented", show_alert=True)
 
-        # ══════════════════════════════════════════════════════════���
-        # BOTSTORE ROUTING
-        # ═══════════════════════════════════════════════════════════
-        elif callback_data == "botstore_home":
-            await botstore_handler.show_botstore_home(update, context)
-
-        elif callback_data in ["botstore_bots", "botstore_groups", "botstore_channels"]:
-            await botstore_handler.show_category_listings(update, context)
-
-        elif callback_data == "botstore_submit":
-            await botstore_handler.handle_submit_listing(update, context)
-
-        elif callback_data == "botstore_tos_accept":
-            await botstore_handler.handle_tos_accept(update, context)
-
-        elif callback_data in ["list_bot", "list_group", "list_channel"]:
-            listing_type = callback_data.split("_")[1]
-            context.user_data["listing_type"] = listing_type
-            context.user_data["botstore_mode"] = "submit_type"
-            context.user_data["submit_step"] = 0
-            await flow_state.sync(context, user_id, _clone_id(context), flow="botstore")
-            await safe_edit_message(query, f"Nice! Now tell me the title of your {listing_type}:")
-
-        elif callback_data == "botstore_search":
-            await botstore_handler.handle_search_botstore(update, context)
-
-        elif callback_data.startswith("botstore_view_"):
-            await botstore_handler.show_listing_detail(update, context)
-
-        elif callback_data.startswith("botstore_rate_"):
-            await botstore_handler.handle_rating(update, context)
-
-        elif callback_data.startswith("rate_"):
-            await botstore_handler.submit_rating(update, context)
-
-        elif callback_data.startswith("cat_"):
-            await botstore_handler.finish_listing_submission(update, context)
-
-        elif callback_data == "go_premium":
-            await botstore_handler.handle_go_premium(update, context)
-
         elif callback_data.startswith("remove_alert_"):
             coin = callback_data.split("_", 2)[2]
             user_id_val = update.effective_user.id
@@ -664,7 +589,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.answer(f"Alert for {coin} removed")
             await superbot_handler.show_crypto_alerts(update, context)
 
-        # ═══════════════════════════════════════════════════════��═══
+        # ══════════════════════════════════════════════════════����═══
         # SUPERBOT ROUTING
         # ═══════════════════════════════════════════════════════════
         elif callback_data == "show_premium_tiers":

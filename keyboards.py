@@ -34,18 +34,10 @@ class KeyboardGenerator:
         keyboard = [
             [
                 InlineKeyboardButton("🤖 AI Chat", callback_data="tools_ai_info"),
-                InlineKeyboardButton("⬇️ Download", callback_data="tools_download_info")
-            ],
-            [
-                InlineKeyboardButton("🔍 Reverse Image Search", callback_data="tools_imgsearch_info")
-            ],
-            [
-                InlineKeyboardButton("🎬 Anime", callback_data="m_anime"),
                 InlineKeyboardButton("🛡️ Group Tools", callback_data="m_grouptools")
             ],
             [
-                InlineKeyboardButton("🧰 Tools", callback_data="m_tools"),
-                InlineKeyboardButton("🏪 BotStore", callback_data="botstore_home")
+                InlineKeyboardButton("🧰 Tools", callback_data="m_tools")
             ],
         ]
 
@@ -166,11 +158,7 @@ class KeyboardGenerator:
                 InlineKeyboardButton("💹 Crypto/Stocks", callback_data="tools_market_info")
             ],
             [
-                InlineKeyboardButton("📰 News", callback_data="tools_news_info"),
-                InlineKeyboardButton("⬇️ Download", callback_data="tools_download_info")
-            ],
-            [
-                InlineKeyboardButton("🔍 Reverse Image Search", callback_data="tools_imgsearch_info")
+                InlineKeyboardButton("📰 News", callback_data="tools_news_info")
             ],
             [
                 InlineKeyboardButton("🌐 Language", callback_data="tools_language_info")
@@ -500,7 +488,7 @@ class KeyboardGenerator:
 
         keyboard = [
             [InlineKeyboardButton(label("🏦 Use Main Bot (default)", "main"), callback_data=f"clone_paysetprovider_main_{clone_id}")],
-            [InlineKeyboardButton(label("📲 Connect Selar", "paystack"), callback_data=f"clone_paysetprovider_paystack_{clone_id}")],
+            [InlineKeyboardButton(label("📲 Connect Paystack", "paystack"), callback_data=f"clone_paysetprovider_paystack_{clone_id}")],
             [InlineKeyboardButton(label("💳 Connect Stripe", "stripe"), callback_data=f"clone_paysetprovider_stripe_{clone_id}")],
             [InlineKeyboardButton("⬅️ Back", callback_data=f"clone_monetization_{clone_id}")]
         ]
