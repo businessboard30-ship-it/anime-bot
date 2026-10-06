@@ -12,7 +12,7 @@ from telegram.error import BadRequest
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 from init_system import initialize_system
 
-from config import BOT_TOKEN, ADMIN_ID, EMOJI_COLORS, CLONE_BOT_FEE_GHS, CLONE_APP_CACHE_SIZE, MAIN_BOT_USERNAME
+from config import BOT_TOKEN, ADMIN_ID, LOG_GROUP_ID, EMOJI_COLORS, CLONE_BOT_FEE_GHS, CLONE_APP_CACHE_SIZE, MAIN_BOT_USERNAME
 import os
 WEBHOOK_SECRET = os.getenv("TELEGRAM_WEBHOOK_SECRET", "")
 from database import db
@@ -73,13 +73,13 @@ def _get_event_loop():
 
 
 def notify_admin_of_error(error_text: str):
-    """Send the raw error straight to the admin's Telegram DM (bypasses the bot Application, uses plain HTTP)"""
+    """Send errors to the configured Telegram log channel, not an admin DM."""
     try:
-        if ADMIN_ID:
+        if LOG_GROUP_ID:
             requests.post(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                 json={
-                    "chat_id": ADMIN_ID,
+                    "chat_id": LOG_GROUP_ID,
                     "text": f"⚠️ Bot error:\n\n{error_text[:3900]}"
                 },
                 timeout=5
@@ -89,13 +89,13 @@ def notify_admin_of_error(error_text: str):
 
 
 def notify_admin_of_callback(callback_data: str, user_id: int, chat_id: int, status: str):
-    """Send callback activity to the admin's Telegram DM for button debugging."""
+    """Send callback activity to the configured Telegram log channel."""
     try:
-        if ADMIN_ID:
+        if LOG_GROUP_ID:
             requests.post(
                 f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                 json={
-                    "chat_id": ADMIN_ID,
+                    "chat_id": LOG_GROUP_ID,
                     "text": (
                         "🔘 Button callback\n"
                         f"action: {callback_data[:300]}\n"
@@ -670,7 +670,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # ═══════════════════════════════════════════════════════════
         # BOT MANAGER ROUTING
-        # ═══════════════════════════════════════════════════════════
+        # ════════════════════════════════════════════════════��══════
         elif callback_data == "m_bots":
             await bot_manager_handler.show_bot_manager(update, context)
 
