@@ -182,11 +182,23 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     callback_data = query.data
     user_id = update.effective_user.id
 
+    # A Telegram callback stays in a loading state until it is acknowledged.
+    # A database hiccup must not make every menu button look dead.
+    try:
+        await query.answer()
+    except Exception:
+        pass
+
     try:
         # Cold-start recovery, same as handle_message (see flow_state.py) —
         # callback taps (e.g. confirming a webhook overwrite, picking a
-        # BotStore category) can equally land on a fresh instance.
-        await flow_state.hydrate(context, user_id, _clone_id(context))
+        # BotStore category) can equally land on a fresh instance. Hydration is
+        # best-effort here so navigation still works when the flow-state store
+        # is temporarily unavailable.
+        try:
+            await flow_state.hydrate(context, user_id, _clone_id(context))
+        except Exception as hydration_error:
+            logger.exception("[v0] Callback flow-state hydration failed: %s", hydration_error)
 
         if callback_data.startswith("payment_approve:") or callback_data.startswith("payment_reject:"):
             await handle_admin_decision(update, context)
@@ -802,16 +814,12 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print(f"[v0] Error in handle_callback: {e}")
             notify_admin_of_error(f"Callback error: {e}")
     except Exception as e:
-        print(f"[v0] Error in handle_callback: {e}")
+        logger.exception("[v0] Error in handle_callback: %s", e)
         notify_admin_of_error(f"Callback error: {e}")
-
-    # Clear the loading spinner for any branch that didn't already answer.
-    # Safe to call even if a branch above already answered with an alert -
-    # Telegram just ignores/errors on the extra call and we swallow that here.
-    try:
-        await query.answer()
-    except Exception:
-        pass
+        try:
+            await query.answer("That action failed. Please try again.", show_alert=True)
+        except Exception:
+            pass
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
