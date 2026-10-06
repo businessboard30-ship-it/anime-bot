@@ -37,6 +37,9 @@ JIKAN_ENDPOINT = "https://api.jikan.moe/v4"
 
 # Payment Configuration
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
+# Paystack signs webhooks with the same secret key used for API requests.
+# Keep the explicit name used by admin diagnostics and handlers as an alias.
+PAYSTACK_WEBHOOK_SECRET = PAYSTACK_SECRET_KEY
 CLONE_BOT_FEE_GHS = 50  # 50 GHS in pesewas = 5000
 
 # --- Shared AI Chat / Download paywall ---------------------------------------
