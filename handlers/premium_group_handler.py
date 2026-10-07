@@ -200,7 +200,14 @@ async def handle_premium_pay_init(update: Update, context: ContextTypes.DEFAULT_
     if payment_result and payment_result.get("status") == "success":
         reference = payment_result.get("reference")
         payment_link = payment_result.get("authorization_url")
+        if not reference or not payment_link:
+            logger.error("[v0] Paystack returned an incomplete premium-group payment response for %s", user.id)
+            await query.answer("Payment setup failed. Please try again.", show_alert=True)
+            return
 
+        # Keep the fast path for warm containers as well as the database intent
+        # below. The database remains the source of truth after a cold start.
+        context.user_data["premium_group_pay_ref"] = reference
         await db.log_payment(user.id, price, reference, status="pending")
         # Persisted server-side (not context.user_data) so the 'I've Paid' tap
         # - handled by manual_payments.handle_user_verification, which may run
