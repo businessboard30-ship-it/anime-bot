@@ -221,7 +221,9 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # A Telegram callback stays in a loading state until it is acknowledged.
     # A database hiccup must not make every menu button look dead.
     try:
-        await query.answer()
+        await query.answer(
+            "Opening AZIGI releases..." if callback_data == "azigi_download" else None
+        )
     except Exception:
         pass
 
