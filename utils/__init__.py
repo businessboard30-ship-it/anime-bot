@@ -53,7 +53,9 @@ def is_owner(user_id: int, context=None) -> bool:
         bot_data = getattr(context, "bot_data", None)
         clone_config = bot_data.get("clone_config") if bot_data else None
         if clone_config and clone_config.get("owner_id") == user_id:
-            return True
+            # Apply the same global /ownerpay switch to every clone owner.
+            # Turning immunity off must not leave clone paywalls bypassed.
+            return owner_immunity_enabled()
     return False
 
 
