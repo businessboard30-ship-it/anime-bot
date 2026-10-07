@@ -1208,25 +1208,44 @@ PRIVATE_CHAT_COMMANDS = [
     ("start", "Open the main menu"),
     ("azigi", "Download Latest AZIGI"),
     ("premium", "View premium tiers"),
+    ("subscribe", "Manage your subscription"),
+    ("leaderboard", "Top users leaderboard"),
+    ("stats", "View your account stats"),
     ("ai", "Chat with AI"),
+    ("aichat", "Chat with AI"),
+    ("aiimage", "Generate an AI image"),
+    ("aistatus", "Check AI service status"),
     ("stock", "Stock price lookup"),
     ("convert", "Currency converter"),
     ("news", "Latest news on a topic"),
-
-    ("subscribe", "Manage your subscription"),
-    ("leaderboard", "Top users leaderboard"),
+    ("language", "Change bot language"),
     ("cancel", "Cancel the current action"),
 ]
 
 GROUP_CHAT_COMMANDS = [
-    ("warn", "Warn a user (reply to them)"),
-    ("ban", "Ban a user (reply to them)"),
-    ("mute", "Mute a user (reply to them)"),
-    ("kick", "Kick a user (reply to them)"),
+    ("warn", "Warn a user"),
+    ("unwarn", "Remove a warning"),
+    ("warns", "View user warnings"),
+    ("ban", "Ban a user"),
+    ("unban", "Unban a user"),
+    ("kick", "Kick a user"),
+    ("mute", "Mute a user"),
+    ("unmute", "Unmute a user"),
     ("filter", "Add a word filter"),
-    ("modsettings", "View/change moderation settings"),
-    ("rules", "Show group rules"),
+    ("unfilter", "Remove a word filter"),
+    ("filters", "List word filters"),
+    ("setcmd", "Create a custom command"),
+    ("delcmd", "Delete a custom command"),
+    ("listcmds", "List custom commands"),
+    ("setgate", "Configure the join gate"),
+    ("gate", "Toggle the join gate"),
+    ("modsettings", "View moderation settings"),
+    ("del", "Delete a replied message"),
+    ("pin", "Pin a replied message"),
+    ("setwelcome", "Set the welcome message"),
     ("groupstats", "Group activity stats"),
+    ("rules", "Show group rules"),
+    ("setjoinlink", "Set the group join link"),
 ]
 
 
@@ -1536,7 +1555,7 @@ def _register_shared_handlers(app: Application):
 
 def invalidate_clone_cache(clone_id: int):
     """Drop a clone's cached Application so the next update rebuilds it from
-    the DB — used after editing a clone's name/branding/categories so the
+    the DB ��� used after editing a clone's name/branding/categories so the
     change is visible immediately instead of waiting for LRU eviction."""
     _clone_apps.pop(clone_id, None)
     _clone_apps_initialized.discard(clone_id)
