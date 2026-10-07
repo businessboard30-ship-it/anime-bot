@@ -238,9 +238,13 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         if callback_data.startswith("payment_approve:") or callback_data.startswith("payment_reject:"):
             await handle_admin_decision(update, context)
+        elif callback_data == "premium_pay_verify":
+            # Premium AZIGI payments have their own Paystack verification path.
+            # Routing this through the generic manual-payment verifier leaves the
+            # user without the Premium Group invite after checkout.
+            await premium_group_handler.handle_premium_pay_verify(update, context)
         elif (callback_data.startswith("welcome_pay_verify_") or callback_data in {
-            "verify_utility_sub", "verify_tier_payment", "premium_pay_verify",
-            "verify_subscription",
+            "verify_utility_sub", "verify_tier_payment", "verify_subscription",
         }):
             await handle_user_verification(update, context, callback_data)
 
