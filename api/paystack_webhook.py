@@ -22,8 +22,7 @@ class handler(BaseHTTPRequestHandler):
         except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
             return self._respond(400, {"status": "error", "message": "Invalid JSON"})
 
-        query_secret = ""
-        if not valid_secret({k.lower(): v for k, v in self.headers.items()}, query_secret):
+        if not valid_secret({k.lower(): v for k, v in self.headers.items()}, raw):
             return self._respond(401, {"status": "error", "message": "Unauthorized"})
 
         sale = normalize_sale(payload)

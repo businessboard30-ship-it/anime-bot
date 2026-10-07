@@ -1,4 +1,5 @@
 """Manual payment review flow for every paid feature."""
+import asyncio
 import json
 import logging
 from typing import Any, Dict, Optional
@@ -173,11 +174,30 @@ async def handle_user_verification(update, context, callback_data: str) -> bool:
         await update.callback_query.answer("Payment reference not found.", show_alert=True)
         return True
 
-    await request_review(context, user_id=user_id, reference=reference, payment_type=kind,
-                         clone_id=clone_id, details=details)
+    # Verify directly with Paystack. Successful transactions are granted without
+    # an admin approval step; pending/failed transactions remain unavailable.
+    from paystack import paystack
+    verification = await asyncio.to_thread(paystack.verify_payment, reference)
+    payment_data = verification.get("data") or {}
+    if verification.get("status") is not True or payment_data.get("status") != "success":
+        await update.callback_query.answer(
+            "Payment is not confirmed yet. Please complete the Paystack checkout and try again.",
+            show_alert=True,
+        )
+        return True
+
+    review = {
+        "reference": reference,
+        "user_id": user_id,
+        "payment_type": kind,
+        "clone_id": clone_id,
+        "context": details,
+    }
+    await grant_review(context, review)
     context.user_data.pop(key, None)
     await db.delete_pending_payment_intent(reference)
-    await safe_edit_message(update.callback_query, "Payment report sent to the admin. Access will be enabled after approval.")
+    await safe_edit_message(update.callback_query, "Payment confirmed. Access granted automatically.")
+    await update.callback_query.answer("Payment confirmed.")
     return True
 
 
