@@ -1191,6 +1191,7 @@ async def show_all_commands(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "**📥 AZIGI**\n/azigi — Download Latest AZIGI (join the Premium Group)\n\n"
         "**🏠 General**\n/start · /premium · /leaderboard\n\n"
         "**🛡️ Group** (admin, in-group)\n/warn /ban /mute /kick /filter /modsettings /rules /groupstats\n\n"
+        "**👑 Owner/Admin** (authorized users only)\n/admin /addazigi /listazigi /ownerpay /config /setpremium /confirmpay /envcheck /getchatid /testlog /broadcast /analytics /exportusers /pendingads\n\n"
         "**🧰 Tools**\n/ai /aiimage /stock /convert /news\n\n"
         "**⚙️ Account**\n/subscribe /stats /cancel"
     )
@@ -1219,6 +1220,22 @@ PRIVATE_CHAT_COMMANDS = [
     ("convert", "Currency converter"),
     ("news", "Latest news on a topic"),
     ("language", "Change bot language"),
+    # These commands are visible in Telegram's menu but still enforce their
+    # own owner/admin authorization when invoked.
+    ("admin", "Open the admin panel"),
+    ("addazigi", "Add an AZIGI listing (owner)"),
+    ("listazigi", "List AZIGI releases (owner)"),
+    ("ownerpay", "Toggle owner payment bypass"),
+    ("config", "Open bot configuration"),
+    ("setpremium", "Set premium pricing"),
+    ("confirmpay", "Confirm a payment"),
+    ("envcheck", "Check bot configuration"),
+    ("getchatid", "Get the current chat ID"),
+    ("testlog", "Test admin logging"),
+    ("broadcast", "Send an admin broadcast"),
+    ("analytics", "View bot analytics"),
+    ("exportusers", "Export user records"),
+    ("pendingads", "Review pending ads"),
     ("cancel", "Cancel the current action"),
 ]
 
